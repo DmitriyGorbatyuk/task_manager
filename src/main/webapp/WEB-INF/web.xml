@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<web-app xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://java.sun.com/xml/ns/javaee"
+         xsi:schemaLocation="http://java.sun.com/xml/ns/javaee http://java.sun.com/xml/ns/javaee/web-app_2_5.xsd"
+         id="WebApp_ID" version="2.5">
+
+    <display-name>Archetype Created Web Application</display-name>
+
+    <context-param>
+        <param-name>dbName</param-name>
+        <param-value>jdbc/task_manager</param-value>
+    </context-param>
+
+
+    <!--Servlet declaration -->
+    <servlet>
+        <servlet-name>registration</servlet-name>
+        <servlet-class>ua.khai.gorbatiuk.taskmanager.web.servlet.RegistrationServlet</servlet-class>
+    </servlet>
+
+    <servlet>
+        <servlet-name>login</servlet-name>
+        <servlet-class>ua.khai.gorbatiuk.taskmanager.web.servlet.LoginServlet</servlet-class>
+    </servlet>
+
+    <servlet>
+        <servlet-name>logout</servlet-name>
+        <servlet-class>ua.khai.gorbatiuk.taskmanager.web.servlet.LogoutServlet</servlet-class>
+    </servlet>
+
+    <servlet>
+        <servlet-name>tasks</servlet-name>
+        <servlet-class>ua.khai.gorbatiuk.taskmanager.web.servlet.TasksServlet</servlet-class>
+    </servlet>
+
+    <!--Servlet mapping -->
+    <servlet-mapping>
+        <servlet-name>registration</servlet-name>
+        <url-pattern>/registration</url-pattern>
+    </servlet-mapping>
+
+    <servlet-mapping>
+        <servlet-name>login</servlet-name>
+        <url-pattern>/login</url-pattern>
+        <url-pattern>/</url-pattern>
+    </servlet-mapping>
+
+    <servlet-mapping>
+        <servlet-name>logout</servlet-name>
+        <url-pattern>/logout</url-pattern>
+    </servlet-mapping>
+
+    <servlet-mapping>
+        <servlet-name>tasks</servlet-name>
+        <url-pattern>/tasks</url-pattern>
+    </servlet-mapping>
+
+
+    <!--Listener-->
+    <listener>
+        <listener-class>ua.khai.gorbatiuk.taskmanager.web.listener.ContextListener</listener-class>
+    </listener>
+
+    <filter>
+        <filter-name>access</filter-name>
+        <filter-class>ua.khai.gorbatiuk.taskmanager.web.filter.AccessFilter</filter-class>
+    </filter>
+
+    <filter-mapping>
+        <filter-name>access</filter-name>
+        <url-pattern>/*</url-pattern>
+    </filter-mapping>
+
+</web-app>
