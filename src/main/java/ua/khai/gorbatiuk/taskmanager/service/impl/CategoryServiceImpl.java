@@ -29,4 +29,19 @@ public class CategoryServiceImpl implements CategoryService {
             throw new ServiceException(e);
         }
     }
+
+    @Override
+    public Category getById(Integer id) {
+        try {
+            return transactionManager.transact(() ->  {
+                Category category = categoryDao.getById(id);
+                if(category == null) {
+                    throw new WrongUserDataException("There is not category with id:" + id);
+                }
+                return category;
+            });
+        } catch (DaoException e) {
+            throw new ServiceException(e);
+        }
+    }
 }

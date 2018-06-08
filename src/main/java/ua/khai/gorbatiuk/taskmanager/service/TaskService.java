@@ -7,4 +7,7 @@ import java.util.List;
 public interface TaskService {
     List<Task> getAllByUserIdAndRootTaskId(Integer userId, Integer rootTaskId);
     Task getByUserIdAndTaskId(Integer userId, Integer rootTaskId);
+    void add(Task newTask);
+    void update(Task updatedTask);
+    void executeTask(Task task);
 }

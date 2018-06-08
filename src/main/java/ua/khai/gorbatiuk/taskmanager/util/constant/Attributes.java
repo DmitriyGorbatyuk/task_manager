@@ -12,6 +12,11 @@ public class Attributes {
     public static final String TASK_SERVICE = "taskService";
     public static final String REQUEST_TO_TASKS_BEAN_CONVERTER = "requestToTasksBeanConverter";
     public static final String CATEGORY_SERVICE = "categoryService";
+    public static final String REQUEST_TO_ADD_TASK_BEAN_CONVERTER = "requestToAddTaskBeanConverter";
+    public static final String EDIT_TASK_BEAN_VALIDATOR = "editTaskBeanValidator";
+    public static final String REQUEST_TO_EDIT_TASK_BEAN_CONVERTER = "requestToEditTaskBeanConverter";
+    public static final String EDIT_TASK_BEAN_TO_TASK_CONVERTER = "editTaskBeanToTask";
+    public static final String REQUEST_TO_EXECUTING_TASK_BEAN_CONVERTER = "requestToExecutingTaskBeanConverter";
 
     private Attributes() {}
 }

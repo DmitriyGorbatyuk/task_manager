@@ -10,6 +10,10 @@
         <param-value>jdbc/task_manager</param-value>
     </context-param>
 
+    <error-page>
+        <exception-type>ua.khai.gorbatiuk.taskmanager.exception.CriticalUserDataException</exception-type>
+        <location>/jsp/error.jsp</location>
+    </error-page>
 
     <!--Servlet declaration -->
     <servlet>
@@ -30,6 +34,21 @@
     <servlet>
         <servlet-name>tasks</servlet-name>
         <servlet-class>ua.khai.gorbatiuk.taskmanager.web.servlet.TasksServlet</servlet-class>
+    </servlet>
+
+    <servlet>
+        <servlet-name>addTasks</servlet-name>
+        <servlet-class>ua.khai.gorbatiuk.taskmanager.web.servlet.AddTaskServlet</servlet-class>
+    </servlet>
+
+    <servlet>
+        <servlet-name>editTask</servlet-name>
+        <servlet-class>ua.khai.gorbatiuk.taskmanager.web.servlet.EditTaskServlet</servlet-class>
+    </servlet>
+
+    <servlet>
+        <servlet-name>executeTask</servlet-name>
+        <servlet-class>ua.khai.gorbatiuk.taskmanager.web.servlet.ExecuteTaskServlet</servlet-class>
     </servlet>
 
     <!--Servlet mapping -->
@@ -54,6 +73,20 @@
         <url-pattern>/tasks</url-pattern>
     </servlet-mapping>
 
+    <servlet-mapping>
+        <servlet-name>addTasks</servlet-name>
+        <url-pattern>/addTasks</url-pattern>
+    </servlet-mapping>
+
+    <servlet-mapping>
+        <servlet-name>editTask</servlet-name>
+        <url-pattern>/editTask</url-pattern>
+    </servlet-mapping>
+
+    <servlet-mapping>
+        <servlet-name>executeTask</servlet-name>
+        <url-pattern>/executeTask</url-pattern>
+    </servlet-mapping>
 
     <!--Listener-->
     <listener>

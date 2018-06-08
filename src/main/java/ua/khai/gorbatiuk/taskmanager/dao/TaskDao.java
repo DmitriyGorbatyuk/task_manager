@@ -7,4 +7,6 @@ import java.util.List;
 public interface TaskDao {
     List<Task> getAllByUserIdAndRootTaskId(Integer userId, Integer taskId);
     Task getByUserIdAndTaskId(Integer userId, Integer taskId);
+    void add(Task newTask);
+    Integer update(Task updatedTask);
 }

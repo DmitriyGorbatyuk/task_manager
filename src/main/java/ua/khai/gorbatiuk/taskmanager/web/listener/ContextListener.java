@@ -4,8 +4,10 @@ import org.apache.log4j.Logger;
 import org.apache.log4j.PropertyConfigurator;
 import ua.khai.gorbatiuk.taskmanager.dao.CategoryDao;
 import ua.khai.gorbatiuk.taskmanager.dao.TaskDao;
+import ua.khai.gorbatiuk.taskmanager.dao.UserTaskTimeDao;
 import ua.khai.gorbatiuk.taskmanager.dao.impl.CategoryDaoMysql;
 import ua.khai.gorbatiuk.taskmanager.dao.impl.TaskDaoMySql;
+import ua.khai.gorbatiuk.taskmanager.dao.impl.UserTaskTimeDaoMysql;
 import ua.khai.gorbatiuk.taskmanager.entity.model.Category;
 import ua.khai.gorbatiuk.taskmanager.entity.model.Task;
 import ua.khai.gorbatiuk.taskmanager.service.CategoryService;
@@ -14,13 +16,13 @@ import ua.khai.gorbatiuk.taskmanager.service.impl.CategoryServiceImpl;
 import ua.khai.gorbatiuk.taskmanager.service.impl.TaskServiceImpl;
 import ua.khai.gorbatiuk.taskmanager.util.constant.Attributes;
 import ua.khai.gorbatiuk.taskmanager.util.converter.Converter;
+import ua.khai.gorbatiuk.taskmanager.util.converter.EditTaskBeanToTaskConverter;
 import ua.khai.gorbatiuk.taskmanager.util.converter.RegistrationUserBeanToUserConverter;
 import ua.khai.gorbatiuk.taskmanager.util.converter.populator.Populator;
 import ua.khai.gorbatiuk.taskmanager.util.converter.populator.ResultSetToCategoryPopulator;
+import ua.khai.gorbatiuk.taskmanager.util.converter.populator.TaskToPreparedStatementPopulator;
 import ua.khai.gorbatiuk.taskmanager.util.converter.populator.UserToPreparedStatementPopulator;
-import ua.khai.gorbatiuk.taskmanager.util.converter.request.RequestToLoginBeanConverter;
-import ua.khai.gorbatiuk.taskmanager.util.converter.request.RequestToRegistrationUserBeanConverter;
-import ua.khai.gorbatiuk.taskmanager.util.converter.request.RequestToTasksBeanConverter;
+import ua.khai.gorbatiuk.taskmanager.util.converter.request.*;
 import ua.khai.gorbatiuk.taskmanager.util.converter.resultset.ResultSetToCategoryConverter;
 import ua.khai.gorbatiuk.taskmanager.util.converter.resultset.ResultSetToTaskConverter;
 import ua.khai.gorbatiuk.taskmanager.util.converter.resultset.ResultSetToUserConverter;
@@ -32,6 +34,8 @@ import ua.khai.gorbatiuk.taskmanager.dao.impl.UserDAOMysql;
 import ua.khai.gorbatiuk.taskmanager.entity.model.User;
 import ua.khai.gorbatiuk.taskmanager.service.UserService;
 import ua.khai.gorbatiuk.taskmanager.service.impl.UserServiceImpl;
+import ua.khai.gorbatiuk.taskmanager.util.converter.resultset.ResultSetToUserTaskTimeConverter;
+import ua.khai.gorbatiuk.taskmanager.util.validator.EditTaskBeanValidator;
 import ua.khai.gorbatiuk.taskmanager.util.validator.LoginUserBeanValidator;
 import ua.khai.gorbatiuk.taskmanager.util.validator.RegistrationUserBeanValidator;
 import ua.khai.gorbatiuk.taskmanager.util.validator.secirity.Security;
@@ -47,6 +51,7 @@ public class ContextListener implements ServletContextListener {
 
     private RegistrationUserBeanValidator registrationUserBeanValidator;
     private LoginUserBeanValidator loginUserBeanValidator;
+    private EditTaskBeanValidator editTaskBeanValidator;
     private UserService userService;
     private RegistrationUserBeanToUserConverter registrationUserBeanToUserConverter;
     private RequestToLoginBeanConverter requestToLoginBeanConverter;
@@ -54,6 +59,11 @@ public class ContextListener implements ServletContextListener {
     private RequestToTasksBeanConverter requestToTasksBeanConverter;
     private TaskService taskService;
     private CategoryService categoryService;
+    private RequestToAddBeanConverter requestToAddTaskBeanConverter;
+    private RequestToEditTaskBeanConverter requestToEditTaskBeanConverter;
+    private EditTaskBeanToTaskConverter editTaskBeanToTaskConverter;
+    private CategoryDao categoryDao;
+    private RequestToExecutingTaskBeanConverter requestToExecutingTaskBeanConverter;
 
     @Override
     public void contextInitialized(ServletContextEvent servletContextEvent) {
@@ -87,6 +97,7 @@ public class ContextListener implements ServletContextListener {
         Security security = new Security();
         registrationUserBeanValidator = new RegistrationUserBeanValidator(security);
         loginUserBeanValidator = new LoginUserBeanValidator(security);
+        editTaskBeanValidator = new EditTaskBeanValidator();
     }
 
     private void initializeTransactionServices(ServletContext servletContext) {
@@ -94,8 +105,8 @@ public class ContextListener implements ServletContextListener {
         MysqlTransactionManager transactionManager = new MysqlTransactionManager(connectionHolder);
 
         initializeUserService(transactionManager, connectionHolder);
-        initializeTaskService(transactionManager, connectionHolder);
         initializeCategoryService(transactionManager, connectionHolder);
+        initializeTaskService(transactionManager, connectionHolder);
     }
 
     private ConnectionHolder initializeConnectionHolder(ServletContext servletContext) {
@@ -118,28 +129,35 @@ public class ContextListener implements ServletContextListener {
         return new UserDAOMysql(connectionHolder, populator, converter);
     }
 
-    private void initializeTaskService(MysqlTransactionManager transactionManager,
-                                       ConnectionHolder connectionHolder) {
-        Populator<ResultSet, Category> categoryPopulator = new ResultSetToCategoryPopulator();
-        Converter<ResultSet, Task> converter = new ResultSetToTaskConverter(categoryPopulator);
-        TaskDao taskDao = new TaskDaoMySql(connectionHolder, converter);
-        taskService = new TaskServiceImpl(transactionManager, taskDao);
-    }
-
     private void initializeCategoryService(MysqlTransactionManager transactionManager,
                                            ConnectionHolder connectionHolder) {
 
         Converter<ResultSet, Category> categoryConverter = new ResultSetToCategoryConverter();
-        CategoryDao categoryDao = new CategoryDaoMysql(connectionHolder,categoryConverter);
+        categoryDao = new CategoryDaoMysql(connectionHolder,categoryConverter);
         categoryService = new CategoryServiceImpl(transactionManager, categoryDao);
     }
 
+    private void initializeTaskService(MysqlTransactionManager transactionManager,
+                                       ConnectionHolder connectionHolder) {
+        Populator<ResultSet, Category> categoryPopulator = new ResultSetToCategoryPopulator();
+        Converter<ResultSet, Task> converter = new ResultSetToTaskConverter(categoryPopulator);
+        Populator<Task, PreparedStatement> taskPreparedStatementPopulator = new TaskToPreparedStatementPopulator();
+        TaskDao taskDao = new TaskDaoMySql(connectionHolder, converter, taskPreparedStatementPopulator);
+        ResultSetToUserTaskTimeConverter resultSetToUserTaskTimeConverter = new ResultSetToUserTaskTimeConverter();
+        UserTaskTimeDao userTaskTimeDao = new UserTaskTimeDaoMysql(connectionHolder, resultSetToUserTaskTimeConverter);
+        taskService = new TaskServiceImpl(transactionManager, taskDao, userTaskTimeDao);
+    }
 
     private void initializeConvertersForServlets() {
         registrationUserBeanToUserConverter = new RegistrationUserBeanToUserConverter();
         requestToLoginBeanConverter = new RequestToLoginBeanConverter();
         requestToRegistrationUserBeanConverter = new RequestToRegistrationUserBeanConverter();
         requestToTasksBeanConverter = new RequestToTasksBeanConverter();
+        requestToAddTaskBeanConverter = new RequestToAddBeanConverter();
+        requestToEditTaskBeanConverter = new RequestToEditTaskBeanConverter();
+        editTaskBeanToTaskConverter = new EditTaskBeanToTaskConverter();
+        requestToExecutingTaskBeanConverter = new RequestToExecutingTaskBeanConverter();
+
     }
 
     private void putAttributesToContext(ServletContext servletContext) {
@@ -151,6 +169,7 @@ public class ContextListener implements ServletContextListener {
     private void putValidatorsToContext(ServletContext servletContext) {
         servletContext.setAttribute(Attributes.REGISTRATION_USER_BEAN_VALIDATOR, registrationUserBeanValidator);
         servletContext.setAttribute(Attributes.LOGIN_USER_BEAN_VALIDATOR, loginUserBeanValidator);
+        servletContext.setAttribute(Attributes.EDIT_TASK_BEAN_VALIDATOR, editTaskBeanValidator);
     }
 
     private void putServicesToContext(ServletContext servletContext) {
@@ -164,6 +183,10 @@ public class ContextListener implements ServletContextListener {
         servletContext.setAttribute(Attributes.REQUEST_TO_LOGIN_BEAN_CONVERTER, requestToLoginBeanConverter);
         servletContext.setAttribute(Attributes.REQUEST_TO_REGISTRATION_BEAN_CONVERTER, requestToRegistrationUserBeanConverter);
         servletContext.setAttribute(Attributes.REQUEST_TO_TASKS_BEAN_CONVERTER,requestToTasksBeanConverter);
+        servletContext.setAttribute(Attributes.REQUEST_TO_ADD_TASK_BEAN_CONVERTER, requestToAddTaskBeanConverter);
+        servletContext.setAttribute(Attributes.REQUEST_TO_EDIT_TASK_BEAN_CONVERTER, requestToEditTaskBeanConverter);
+        servletContext.setAttribute(Attributes.EDIT_TASK_BEAN_TO_TASK_CONVERTER, editTaskBeanToTaskConverter );
+        servletContext.setAttribute(Attributes.REQUEST_TO_EXECUTING_TASK_BEAN_CONVERTER, requestToExecutingTaskBeanConverter);
     }
 
     @Override

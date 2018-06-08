@@ -1,22 +1,24 @@
 package ua.khai.gorbatiuk.taskmanager.entity.model;
 
-import java.sql.Date;
+import java.time.LocalDateTime;
 
 public class Task extends DBEntity {
     private Integer rootId;
     private String name;
-    private Date date;
+    private LocalDateTime date;
     private Integer complexity;
     private String description;
     private Integer time;
     private Boolean checked;
     private Category category;
     private User user;
+    private Boolean isLeaf;
 
     public Task() {
     }
 
-    public Task(Integer id, Integer rootId, String name, Date date, Integer complexity, String description, Integer time, Category category, User user) {
+    public Task(Integer id, Integer rootId, String name, LocalDateTime date, Integer complexity, String description,
+                Integer time, Boolean checked, Category category, User user) {
         super(id);
         this.rootId = rootId;
         this.name = name;
@@ -24,6 +26,7 @@ public class Task extends DBEntity {
         this.complexity = complexity;
         this.description = description;
         this.time = time;
+        this.checked = checked;
         this.category = category;
         this.user = user;
     }
@@ -44,11 +47,11 @@ public class Task extends DBEntity {
         this.name = name;
     }
 
-    public Date getDate() {
+    public LocalDateTime getDate() {
         return date;
     }
 
-    public void setDate(Date date) {
+    public void setDate(LocalDateTime date) {
         this.date = date;
     }
 
@@ -98,5 +101,13 @@ public class Task extends DBEntity {
 
     public void setUser(User user) {
         this.user = user;
+    }
+
+    public Boolean getIsLeaf() {
+        return isLeaf;
+    }
+
+    public void setIsLeaf(Boolean isLeaf) {
+        this.isLeaf = isLeaf;
     }
 }

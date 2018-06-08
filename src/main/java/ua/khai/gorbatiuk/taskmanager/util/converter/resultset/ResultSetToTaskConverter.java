@@ -8,8 +8,11 @@ import ua.khai.gorbatiuk.taskmanager.util.constant.Table;
 import ua.khai.gorbatiuk.taskmanager.util.converter.Converter;
 import ua.khai.gorbatiuk.taskmanager.util.converter.populator.Populator;
 
+import java.sql.Date;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
 
 public class ResultSetToTaskConverter implements Converter<ResultSet, Task> {
 
@@ -25,7 +28,15 @@ public class ResultSetToTaskConverter implements Converter<ResultSet, Task> {
             Task task = new Task();
             task.setId(source.getInt(Table.Task.ID));
             task.setRootId(source.getInt(Table.Task.ID_ROOT));
-            task.setDate(source.getDate(Table.Task.DATE));
+
+            String date = source.getString(Table.Task.DATE);
+            if(date == null) {
+                task.setDate(LocalDateTime.now().withNano(0).withSecond(0));
+            } else {
+                task.setDate(LocalDateTime.parse(date.toString()));
+            }
+
+
             task.setTime(source.getInt(Table.Task.TIME));
             task.setComplexity(source.getInt(Table.Task.COMPLEXITY));
             task.setDescription(source.getString(Table.Task.TEXT));

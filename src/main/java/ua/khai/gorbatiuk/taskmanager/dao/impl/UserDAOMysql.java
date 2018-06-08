@@ -1,6 +1,7 @@
 package ua.khai.gorbatiuk.taskmanager.dao.impl;
 
 
+import ua.khai.gorbatiuk.taskmanager.dao.AbstractMysqlDao;
 import ua.khai.gorbatiuk.taskmanager.util.converter.Converter;
 import ua.khai.gorbatiuk.taskmanager.util.converter.populator.Populator;
 import ua.khai.gorbatiuk.taskmanager.dao.UserDao;
@@ -16,14 +17,13 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 
-public class UserDAOMysql implements UserDao {
+public class UserDAOMysql extends AbstractMysqlDao implements UserDao {
 
     private static final String USER_COLUMNS = "`id_user`, `email`, `password`";
     private static final String TABLE_NAME = "`task_manager`.`users`";
     private static final String SELECT_USERS_BY_EMAIL = "SELECT " + USER_COLUMNS + " FROM " + TABLE_NAME + " where email = ?";
     private static final String INSERT_USER = "INSERT INTO " + TABLE_NAME + "(" + USER_COLUMNS + ") VALUES (default, ?, ?)";
 
-    private ConnectionHolder connectionHolder;
 
     private Populator<User, PreparedStatement> userToPreparedStatementPopulator;
     private Converter<ResultSet, User> resultSetToUserConverter;
@@ -31,7 +31,7 @@ public class UserDAOMysql implements UserDao {
     public UserDAOMysql(ConnectionHolder connectionHolder,
                         Populator<User, PreparedStatement> userToPreparedStatementPopulator,
                         Converter<ResultSet, User> resultSetToUserConverter) {
-        this.connectionHolder = connectionHolder;
+        super(connectionHolder);
         this.userToPreparedStatementPopulator = userToPreparedStatementPopulator;
         this.resultSetToUserConverter = resultSetToUserConverter;
     }
@@ -46,10 +46,6 @@ public class UserDAOMysql implements UserDao {
         } catch (SQLException | PopulatorException e) {
             throw new DaoException(e);
         }
-    }
-
-    private Connection getConnection() {
-        return connectionHolder.getConnection();
     }
 
     private void updateUserId(User newUser, PreparedStatement statement) throws SQLException {
