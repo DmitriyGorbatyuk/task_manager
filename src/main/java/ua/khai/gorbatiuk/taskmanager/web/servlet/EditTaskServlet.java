@@ -67,7 +67,7 @@ public class EditTaskServlet extends HttpServlet {
     }
 
     private void updateTask(HttpServletRequest request, EditTaskBean editedTask) {
-        Category category = categoryService.getById(editedTask.getFkCategory());
+        Category category = categoryService.getByUserIdAndCategoryId(editedTask.getFkCategory());
 
         Task updatedTask = editTaskBeanToTaskConverter.convert(editedTask);
         TasksBean tasksBean = requestToTasksBeanConverter.convert(request);

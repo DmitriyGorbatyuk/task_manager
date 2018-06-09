@@ -51,6 +51,11 @@
         <servlet-class>ua.khai.gorbatiuk.taskmanager.web.servlet.ExecuteTaskServlet</servlet-class>
     </servlet>
 
+    <servlet>
+        <servlet-name>checkTask</servlet-name>
+        <servlet-class>ua.khai.gorbatiuk.taskmanager.web.servlet.CheckTask</servlet-class>
+    </servlet>
+
     <!--Servlet mapping -->
     <servlet-mapping>
         <servlet-name>registration</servlet-name>
@@ -86,6 +91,11 @@
     <servlet-mapping>
         <servlet-name>executeTask</servlet-name>
         <url-pattern>/executeTask</url-pattern>
+    </servlet-mapping>
+
+    <servlet-mapping>
+        <servlet-name>checkTask</servlet-name>
+        <url-pattern>/checkTask</url-pattern>
     </servlet-mapping>
 
     <!--Listener-->

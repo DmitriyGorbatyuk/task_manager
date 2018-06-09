@@ -110,4 +110,29 @@ public class Task extends DBEntity {
     public void setIsLeaf(Boolean isLeaf) {
         this.isLeaf = isLeaf;
     }
+
+    public String getFormattedTime() {
+        StringBuilder formattedTime = new StringBuilder();
+
+        int hours = time / (60 * 60);
+        if (hours < 10) {
+            formattedTime.append('0');
+        }
+        formattedTime.append(hours);
+        formattedTime.append(':');
+
+        int minutes = (time / (60)) % 60;
+        if (minutes < 10) {
+            formattedTime.append('0');
+        }
+        formattedTime.append(minutes);
+        formattedTime.append(':');
+
+        int seconds = time % 60;
+        if (seconds < 10) {
+            formattedTime.append('0');
+        }
+        formattedTime.append(seconds);
+        return formattedTime.toString();
+    }
 }

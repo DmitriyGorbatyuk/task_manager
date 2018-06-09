@@ -1,10 +1,8 @@
 package ua.khai.gorbatiuk.taskmanager.web.servlet;
 
 import org.apache.log4j.Logger;
-import ua.khai.gorbatiuk.taskmanager.entity.bean.AddTaskBean;
 import ua.khai.gorbatiuk.taskmanager.entity.bean.TasksBean;
 import ua.khai.gorbatiuk.taskmanager.entity.model.Category;
-import ua.khai.gorbatiuk.taskmanager.exception.ConverterException;
 import ua.khai.gorbatiuk.taskmanager.exception.CriticalUserDataException;
 import ua.khai.gorbatiuk.taskmanager.exception.ServiceException;
 import ua.khai.gorbatiuk.taskmanager.exception.WrongUserDataException;
@@ -22,6 +20,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 import java.io.IOException;
+import java.util.Comparator;
 import java.util.List;
 
 public class TasksServlet extends HttpServlet {
@@ -75,18 +74,19 @@ public class TasksServlet extends HttpServlet {
 
     private void putNeighbors(HttpServletRequest request, TasksBean tasksBean, Integer rootId) {
         List<Task> neighbors = taskService.getAllByUserIdAndRootTaskId(tasksBean.getUserId(), rootId);
+        neighbors.sort(Comparator.comparing(Task::getId));
         request.setAttribute(NEIGHBORS, neighbors);
     }
 
     private Task putCurrentTask(HttpServletRequest request, TasksBean tasksBean) {
         Task currentTask = taskService.getByUserIdAndTaskId(tasksBean.getUserId(), tasksBean.getCurrentTaskId());
         request.getSession().setAttribute(RequestParameter.CURRENT_TASK, currentTask);
-        putCategories(request);
+        putCategories(request, tasksBean);
         return currentTask;
     }
 
-    private void putCategories(HttpServletRequest request) {
-        List<Category> categories = categoryService.getAll();
+    private void putCategories(HttpServletRequest request, TasksBean taskBean) {
+        List<Category> categories = categoryService.getAllByUserId(taskBean.getUserId());
         request.setAttribute(ALL_CATEGORIES, categories);
     }
 

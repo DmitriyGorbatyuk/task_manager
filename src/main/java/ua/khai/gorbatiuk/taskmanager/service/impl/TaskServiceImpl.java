@@ -27,14 +27,15 @@ public class TaskServiceImpl implements TaskService {
         this.userTaskTimeDao = userTaskTimeDao;
     }
 
+
     @Override
     public List<Task> getAllByUserIdAndRootTaskId(Integer userId, Integer rootTaskId) {
         try {
             return transactionManager.transact(() -> {
                 List<Task> tasks = taskDao.getAllByUserIdAndRootTaskId(userId, rootTaskId);
-                if (tasks.size() != 0) {
+                if (!tasks.isEmpty()) {
                     for (Task task : tasks) {
-                        task.setIsLeaf(taskDao.getAllByUserIdAndRootTaskId(userId, task.getId()).isEmpty());
+                        readTimeRecursively(task);
                     }
                     return tasks;
                 }
@@ -46,14 +47,24 @@ public class TaskServiceImpl implements TaskService {
         }
     }
 
+    private void readTimeRecursively(Task currentTask) {
+        List<Task> children = taskDao.getAllByUserIdAndRootTaskId(currentTask.getUser().getId(), currentTask.getId());
+        for (Task child : children) {
+            readTimeRecursively(child);
+        }
+        currentTask.setIsLeaf(!children.stream().anyMatch(item -> !item.getChecked()));
+        if (!children.isEmpty()) {
+            currentTask.setTime(children.stream().mapToInt(item -> item.getTime()).sum());
+        }
+    }
+
     @Override
     public Task getByUserIdAndTaskId(Integer userId, Integer taskId) {
         try {
             return transactionManager.transact(() -> {
                 Task task = taskDao.getByUserIdAndTaskId(userId, taskId);
                 if (task != null) {
-                    List<Task> tasks = taskDao.getAllByUserIdAndRootTaskId(userId, taskId);
-                    task.setIsLeaf(tasks.isEmpty());
+                    readTimeRecursively(task);
                     return task;
                 }
                 throw new WrongUserDataException("There is not task with taskId=" + taskId);
@@ -62,7 +73,6 @@ public class TaskServiceImpl implements TaskService {
             throw new ServiceException(e);
         }
     }
-
 
     @Override
     public void add(Task newTask) {
@@ -103,7 +113,7 @@ public class TaskServiceImpl implements TaskService {
                     startExecuteTask(task);
                 } else {
                     finishExecuteTask(userTaskTime);
-                    if (task.getId() != userTaskTime.getTaskId()) {
+                    if (!task.getId().equals(userTaskTime.getTaskId())) {
                         startExecuteTask(task);
                     }
                 }
@@ -134,5 +144,21 @@ public class TaskServiceImpl implements TaskService {
 
         taskDao.update(currentTask);
         userTaskTimeDao.deleteStartTime(userTaskTime);
+    }
+
+    @Override
+    public void checkTask(Task task) {
+        try {
+            transactionManager.transact(() -> {
+                task.setChecked(!task.getChecked());
+                Integer updatedLines = taskDao.update(task);
+                if (updatedLines != null && updatedLines == 1) {
+                    return updatedLines;
+                }
+                throw new ServiceException("There is more updated tasks lines than 1(" + updatedLines + ")");
+            });
+        } catch (DaoException e) {
+            throw new ServiceException(e);
+        }
     }
 }

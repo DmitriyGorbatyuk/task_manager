@@ -19,21 +19,20 @@ import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 import java.io.IOException;
 
-public class ExecuteTaskServlet extends HttpServlet {
+public class CheckTask extends HttpServlet {
+
     private static final Logger logger = Logger.getLogger(ExecuteTaskServlet.class);
 
     private static final String TASKS_URI = "/tasks";
-    private static final String EXECUTING_TASK = "executingTask";
 
     private TaskService taskService;
     private Converter<HttpServletRequest, ExecutingTaskBean> requestToExecutingTaskBean;
     private Converter<HttpServletRequest, TasksBean> requestToTasksBeanConverter;
 
-
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         try {
-            executeTask(request);
+            checkTask(request);
             response.sendRedirect(TASKS_URI);
         } catch (ConverterException e) {
             logger.debug(e);
@@ -41,32 +40,20 @@ public class ExecuteTaskServlet extends HttpServlet {
         }
     }
 
-    private void executeTask(HttpServletRequest request) {
+    private void checkTask(HttpServletRequest request) {
         ExecutingTaskBean executingTaskBean = requestToExecutingTaskBean.convert(request);
         TasksBean tasksBean = requestToTasksBeanConverter.convert(request);
         try {
             Task executingTask = taskService.getByUserIdAndTaskId(tasksBean.getUserId(), executingTaskBean.getExecutingTaskId());
             HttpSession session = request.getSession();
             if (executingTask.getIsLeaf()) {
-                taskService.executeTask(executingTask);
-
-                Task oldExecutingTask = (Task) session.getAttribute(EXECUTING_TASK);
-                if (doSetExecutingTask(executingTask, oldExecutingTask)) {
-                    session.setAttribute(EXECUTING_TASK, executingTask);
-                } else {
-                    session.removeAttribute(EXECUTING_TASK);
-                }
+                taskService.checkTask(executingTask);
             } else {
-                session.setAttribute("executeTaskError", "You can only perform subtasks");
+                session.setAttribute("executeTaskError", "You can only check subtasks");
             }
-
         } catch (WrongUserDataException e) {
             throw new CriticalUserDataException(e.getMessage());
         }
-    }
-
-    private boolean doSetExecutingTask(Task executingTask, Task oldExecutingTask) {
-        return oldExecutingTask == null || !oldExecutingTask.getId().equals(executingTask.getId());
     }
 
     @Override

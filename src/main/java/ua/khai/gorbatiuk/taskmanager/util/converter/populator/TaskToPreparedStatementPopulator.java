@@ -16,6 +16,7 @@ public class TaskToPreparedStatementPopulator implements Populator<Task, Prepare
             target.setInt(k++, source.getComplexity());
             target.setString(k++, source.getDescription());
             target.setInt(k++, source.getTime());
+            target.setBoolean(k++, source.getChecked());
             target.setInt(k++, source.getCategory().getId());
             target.setInt(k++, source.getId());
             target.setInt(k++, source.getUser().getId());

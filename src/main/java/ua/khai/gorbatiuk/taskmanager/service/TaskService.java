@@ -10,4 +10,5 @@ public interface TaskService {
     void add(Task newTask);
     void update(Task updatedTask);
     void executeTask(Task task);
+    void checkTask(Task task);
 }

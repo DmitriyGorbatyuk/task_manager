@@ -40,6 +40,7 @@ JSTL i18n tag library.
         </div>
     </div>
     <div class="row">
+
         <div class="col-md-3">
             <div class="panel panel-default">
                 <ul class="nav flex-column ">
@@ -103,44 +104,79 @@ JSTL i18n tag library.
                             <c:choose>
                                 <c:when test="${not empty children}">
                                     <c:forEach items="${children}" var="child">
-                                        <tr>
-                                            <div class="checkbox">
+                                        <c:if test="${not child.checked}">
+                                            <tr>
+                                                <div class="checkbox">
+                                                    <td>
+                                                        <c:if test="${child.isLeaf}">
+                                                            <form action="/checkTask" method="post">
+                                                                <input type="text" name="executingTaskBeanId"
+                                                                       value="${child.id}" hidden>
+                                                                <input type="checkbox" ${child.checked ? 'checked' : ''}
+                                                                       onclick="this.form.submit()">
+                                                            </form>
+                                                        </c:if>
+                                                    </td>
+                                                </div>
                                                 <td>
+                                                    <a href="/tasks?currentTaskId=${child.id}">${child.name}</a>
+                                                </td>
+
+                                                <td>${child.complexity}</td>
+                                                <td>
+                                                    <div id="circle" style="background:#${child.category.color}"/>
+                                                </td>
+                                                <td>${child.formattedTime}</td>
+                                                <td class="col-md-2">
                                                     <c:if test="${child.isLeaf}">
-                                                        <input type="checkbox" ${child.checked ? 'checked' : ''}>
+                                                        <form action="/executeTask" method="post">
+                                                            <input type="text" name="executingTaskBeanId"
+                                                                   value="${child.id}" hidden>
+                                                            <c:choose>
+                                                                <c:when test="${child.id eq executingTask.id}">
+                                                                    <input class="form-control" type="submit"
+                                                                           value="Finish task">
+                                                                </c:when>
+                                                                <c:otherwise>
+                                                                    <input class="form-control" type="submit"
+                                                                           value="Start task">
+                                                                </c:otherwise>
+                                                            </c:choose>
+                                                        </form>
                                                     </c:if>
                                                 </td>
-                                            </div>
-                                            <td>
-                                                <a href="/tasks?currentTaskId=${child.id}">${child.name}</a>
-                                            </td>
+                                            </tr>
+                                        </c:if>
 
-                                            <td>${child.complexity}</td>
-                                            <td>
-                                                <div id="circle" style="background:#${child.category.color}"/>
-                                            </td>
-                                            <td>${child.time} c</td>
-                                            <td class="col-md-2">
-                                                <c:if test="${child.isLeaf}">
-                                                    <form action="/executeTask" method="post">
-                                                        <input type="text" name="executingTaskBeanId"
-                                                               value="${child.id}" hidden>
-                                                        <c:choose>
-                                                            <c:when test="${child.id eq executingTask.id}">
-                                                                <input class="form-control" type="submit"
-                                                                       value="Finish task">
-                                                            </c:when>
-                                                            <c:otherwise>
-                                                                <input class="form-control" type="submit"
-                                                                       value="Start task">
-                                                            </c:otherwise>
-                                                        </c:choose>
-                                                    </form>
-                                                </c:if>
-                                            </td>
+                                        <c:if test="${child.checked}">
+                                            <tr>
+                                                <small>
+                                                    <div class="checkbox">
+                                                        <td>
+                                                            <form action="/checkTask" method="post">
+                                                                <input type="text" name="executingTaskBeanId"
+                                                                       value="${child.id}" hidden>
+                                                                <input type="checkbox" ${child.checked ? 'checked' : ''}
+                                                                       onclick="this.form.submit()">
+                                                            </form>
+                                                        </td>
+                                                    </div>
+                                                    <td>
+                                                        <del>
+                                                            <a href="/tasks?currentTaskId=${child.id}">${child.name}</a>
+                                                        </del>
+                                                    </td>
 
+                                                    <td>${child.complexity}</td>
+                                                    <td>
+                                                        <div id="circle" style="background:#${child.category.color}"/>
+                                                    </td>
+                                                    <td>${child.formattedTime}</td>
+                                                    <td class="col-md-2">
+                                                    </td>
+                                            </tr>
+                                        </c:if>
 
-                                        </tr>
                                     </c:forEach>
                                 </c:when>
                                 <c:otherwise>
@@ -178,9 +214,10 @@ JSTL i18n tag library.
                         <br>
                         <textarea class="form-control" rows="5"
                                   name="taskDescription">${currentTask.description}</textarea>
-                        <small class="text-muted">Spent time:</small>
+                        <small class="text-muted">Spent time(seconds):</small>
                         <br>
-                        <input class="form-control" type="number" name="taskTime" min="0" value="${currentTask.time}" ${currentTask.isLeaf ? '' : 'disabled'}>
+                        <input class="form-control" type="number" name="taskTime" min="0"
+                               value="${currentTask.time}" ${currentTask.isLeaf ? '' : 'disabled'}>
                         <small class="text-muted">Category:</small>
                         <select class="form-control" name="taskCategoryId">
                             <c:forEach items="${allCategories}" var="category">
@@ -198,6 +235,8 @@ JSTL i18n tag library.
         </div>
     </div>
 </div>
-
+<script>
+    <%@include file="/static/js/stopwatch.js" %>
+</script>
 </body>
 </html>

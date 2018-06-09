@@ -22,7 +22,7 @@ public class CategoryServiceImpl implements CategoryService {
     }
 
     @Override
-    public List<Category> getAll() {
+    public List<Category> getAllByUserId() {
         try {
             return transactionManager.transact(() -> categoryDao.getAll());
         } catch (DaoException e) {
@@ -31,7 +31,7 @@ public class CategoryServiceImpl implements CategoryService {
     }
 
     @Override
-    public Category getById(Integer id) {
+    public Category getByUserIdAndCategoryId(Integer id) {
         try {
             return transactionManager.transact(() ->  {
                 Category category = categoryDao.getById(id);
