@@ -4,8 +4,15 @@ import ua.khai.gorbatiuk.taskmanager.entity.model.Category;
 
 import java.util.List;
 
-//TODO correct category service implementation
+
 public interface CategoryService {
     List<Category> getAllByUserId(Integer userId);
-    Category getByUserIdAndCategoryId(Integer id);
+    Category getByUserIdAndCategoryId(Integer userId, Integer categoryId);
+    List<Category> getAllByUserIdAndCategoryRootId(Integer userId, Integer id);
+
+    void add(Integer id, Integer rootId, String categoryName);
+
+    void delete(Integer id, Integer rootId);
+
+    void update(Category category);
 }

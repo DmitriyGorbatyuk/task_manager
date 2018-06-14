@@ -64,7 +64,7 @@ public class ContextListener implements ServletContextListener {
     private EditTaskBeanToTaskConverter editTaskBeanToTaskConverter;
     private CategoryDao categoryDao;
     private RequestToExecutingTaskBeanConverter requestToExecutingTaskBeanConverter;
-
+    private RequestToCategoriesBeanConverter requestToCategoriesBeanConverter;
     @Override
     public void contextInitialized(ServletContextEvent servletContextEvent) {
 
@@ -157,7 +157,7 @@ public class ContextListener implements ServletContextListener {
         requestToEditTaskBeanConverter = new RequestToEditTaskBeanConverter();
         editTaskBeanToTaskConverter = new EditTaskBeanToTaskConverter();
         requestToExecutingTaskBeanConverter = new RequestToExecutingTaskBeanConverter();
-
+        requestToCategoriesBeanConverter = new RequestToCategoriesBeanConverter();
     }
 
     private void putAttributesToContext(ServletContext servletContext) {
@@ -187,6 +187,7 @@ public class ContextListener implements ServletContextListener {
         servletContext.setAttribute(Attributes.REQUEST_TO_EDIT_TASK_BEAN_CONVERTER, requestToEditTaskBeanConverter);
         servletContext.setAttribute(Attributes.EDIT_TASK_BEAN_TO_TASK_CONVERTER, editTaskBeanToTaskConverter );
         servletContext.setAttribute(Attributes.REQUEST_TO_EXECUTING_TASK_BEAN_CONVERTER, requestToExecutingTaskBeanConverter);
+        servletContext.setAttribute(Attributes.REQUEST_TO_CATEGORIES_BEAN_CONVERTER, requestToCategoriesBeanConverter);
     }
 
     @Override

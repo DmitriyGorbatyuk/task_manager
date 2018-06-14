@@ -9,4 +9,6 @@ public interface TaskDao {
     Task getByUserIdAndTaskId(Integer userId, Integer taskId);
     void add(Task newTask);
     Integer update(Task updatedTask);
+
+    List<Task> getAllByUserId(Integer userId);
 }

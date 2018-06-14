@@ -3,6 +3,7 @@ package ua.khai.gorbatiuk.taskmanager.service.impl;
 import ua.khai.gorbatiuk.taskmanager.dao.TaskDao;
 import ua.khai.gorbatiuk.taskmanager.dao.UserTaskTimeDao;
 import ua.khai.gorbatiuk.taskmanager.dao.connection.MysqlTransactionManager;
+import ua.khai.gorbatiuk.taskmanager.entity.bean.TasksBean;
 import ua.khai.gorbatiuk.taskmanager.entity.bean.UserTaskTime;
 import ua.khai.gorbatiuk.taskmanager.entity.model.Task;
 import ua.khai.gorbatiuk.taskmanager.exception.DaoException;
@@ -11,10 +12,15 @@ import ua.khai.gorbatiuk.taskmanager.exception.WrongUserDataException;
 import ua.khai.gorbatiuk.taskmanager.service.TaskService;
 
 import java.time.Duration;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.util.List;
+import java.util.*;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 public class TaskServiceImpl implements TaskService {
+
+    private final Map<String, Function<Task, Comparable>> sortedField = new HashMap<>();
 
     private MysqlTransactionManager transactionManager;
 
@@ -25,21 +31,64 @@ public class TaskServiceImpl implements TaskService {
         this.transactionManager = transactionManager;
         this.taskDao = taskDao;
         this.userTaskTimeDao = userTaskTimeDao;
+        sortedField.put("name", Task::getName);
+        sortedField.put("complexity", Task::getComplexity);
+        sortedField.put("category", task -> task.getCategory().getName());
+        sortedField.put("time", Task::getTime);
+        sortedField.put("date", Task::getDate);
     }
 
-
     @Override
-    public List<Task> getAllByUserIdAndRootTaskId(Integer userId, Integer rootTaskId) {
+    public List<Task> getAllByUserId(Integer userId) {
         try {
             return transactionManager.transact(() -> {
-                List<Task> tasks = taskDao.getAllByUserIdAndRootTaskId(userId, rootTaskId);
+                List<Task> tasks = taskDao.getAllByUserIdAndRootTaskId(userId, 1);
                 if (!tasks.isEmpty()) {
                     for (Task task : tasks) {
                         readTimeRecursively(task);
                     }
                     return tasks;
                 }
-                throw new WrongUserDataException("There are not tasks with rootTaskId=" + rootTaskId);
+                throw new WrongUserDataException("There are not task with userId=" + userId);
+
+            });
+        } catch (DaoException e) {
+            throw new ServiceException(e);
+        }
+    }
+
+    @Override
+    public List<Task> getUncheckedByUserIdAndRootTaskId(Integer userId, Integer rootTaskId) {
+        try {
+            return transactionManager.transact(() -> {
+                List<Task> tasks = taskDao.getAllByUserIdAndRootTaskId(userId, rootTaskId);
+                if (!tasks.isEmpty()) {
+                    List<Task> returned = new ArrayList<>();
+                    tasks.stream().filter(task -> !task.getChecked()).forEach(task -> returned.add(task));
+                    return returned;
+                }
+                throw new WrongUserDataException("There are not task with rootTaskId=" + rootTaskId);
+
+            });
+        } catch (DaoException e) {
+            throw new ServiceException(e);
+        }
+    }
+
+
+    @Override
+    public List<Task> getAllByTasksBean(TasksBean tasksBean) {
+        try {
+            return transactionManager.transact(() -> {
+                List<Task> tasks = taskDao.getAllByUserIdAndRootTaskId(tasksBean.getUser().getId(), tasksBean.getTask().getId());
+                if (!tasks.isEmpty()) {
+                    for (Task task : tasks) {
+                        readTimeRecursively(task);
+                    }
+                    sortTasks(tasks, tasksBean.getSortField(), tasksBean.getAscending());
+                    return tasks;
+                }
+                throw new WrongUserDataException("There are not task with rootTaskId=" + tasksBean.getTask().getRootId());
 
             });
         } catch (DaoException e) {
@@ -55,6 +104,21 @@ public class TaskServiceImpl implements TaskService {
         currentTask.setIsLeaf(!children.stream().anyMatch(item -> !item.getChecked()));
         if (!children.isEmpty()) {
             currentTask.setTime(children.stream().mapToInt(item -> item.getTime()).sum());
+        }
+    }
+
+
+    private void sortTasks(List<Task> tasks, String sortField, Boolean ascending) {
+        if (sortField != null && !sortField.equals("none")) {
+            sortTasksByField(tasks, sortedField.get(sortField), ascending);
+        }
+    }
+
+    private void sortTasksByField(List<Task> tasks, Function<Task, Comparable> method, Boolean ascending) {
+        if (ascending) {
+            tasks.sort(Comparator.comparing(method));
+        } else {
+            tasks.sort(Comparator.comparing(method).reversed());
         }
     }
 
@@ -80,7 +144,7 @@ public class TaskServiceImpl implements TaskService {
             transactionManager.transact(() -> {
                 Task rootTask = taskDao.getByUserIdAndTaskId(newTask.getUser().getId(), newTask.getRootId());
                 newTask.setCategory(rootTask.getCategory());
-                newTask.setDate(LocalDateTime.now());
+                newTask.setDate(LocalDateTime.now().withSecond(0).withNano(0));
                 taskDao.add(newTask);
                 return 0;
             });
@@ -97,7 +161,7 @@ public class TaskServiceImpl implements TaskService {
                 if (updatedLines != null && updatedLines == 1) {
                     return updatedLines;
                 }
-                throw new ServiceException("There is more updated tasks lines than 1(" + updatedLines + ")");
+                throw new ServiceException("There is more updated task lines than 1(" + updatedLines + ")");
             });
         } catch (DaoException e) {
             throw new ServiceException(e);
@@ -155,7 +219,24 @@ public class TaskServiceImpl implements TaskService {
                 if (updatedLines != null && updatedLines == 1) {
                     return updatedLines;
                 }
-                throw new ServiceException("There is more updated tasks lines than 1(" + updatedLines + ")");
+                throw new ServiceException("There is more updated task lines than 1(" + updatedLines + ")");
+            });
+        } catch (DaoException e) {
+            throw new ServiceException(e);
+        }
+    }
+
+    @Override
+    public List<Task> getTodayTasks(TasksBean tasksBean) {
+        try {
+            return transactionManager.transact(() -> {
+                List<Task> allTasks = taskDao.getAllByUserId(tasksBean.getUser().getId());
+                LocalDate today = LocalDate.now();
+                List<Task> todays = allTasks.stream().filter(task -> task.getDate() != null &&
+                        task.getDate().toLocalDate().equals(today)).collect(Collectors.toList());
+                todays.stream().forEach(task -> readTimeRecursively(task));
+                sortTasks(todays, tasksBean.getSortField(), tasksBean.getAscending());
+                return todays;
             });
         } catch (DaoException e) {
             throw new ServiceException(e);

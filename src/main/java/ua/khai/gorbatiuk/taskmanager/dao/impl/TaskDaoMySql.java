@@ -24,7 +24,7 @@ public class TaskDaoMySql extends AbstractMysqlDao implements TaskDao {
     private static final String ORDER_BY_TASKS_ID_TASK = "ORDER BY `tasks`.`checked`, `tasks`.`id_task` desc ";
 
     private static final String SELECT_BY_USERID = "SELECT " + TASK_COLUMNS + ", " + CATEGORY_COLUMNS + " FROM " + TASKS +
-            " INNER JOIN " + CATEGORIES + " ON `tasks`.`fk_category` = `categories`.`id_category`" + " where fk_user = ?";
+            " INNER JOIN " + CATEGORIES + " ON `tasks`.`fk_category` = `categories`.`id_category`" + " where `tasks`.`fk_user` = ?";
     private static final String SELECT_BY_USERID_ROOTID = SELECT_BY_USERID + " and `tasks`.`id_root` = ? " + ORDER_BY_TASKS_ID_TASK;
     private static final String SELECT_BY_USERID_TASKID = SELECT_BY_USERID + " and `tasks`.`id_task` = ? ";
 
@@ -43,6 +43,16 @@ public class TaskDaoMySql extends AbstractMysqlDao implements TaskDao {
         super(connectionHolder);
         this.resultSetToTaskConverter = resultSetToTaskConverter;
         this.taskToPreparedStatementPopulator = taskToPreparedStatementPopulator;
+    }
+
+    @Override
+    public List<Task> getAllByUserId(Integer userId) {
+        try (PreparedStatement statement = getConnection().prepareStatement(SELECT_BY_USERID)) {
+            statement.setInt(1, userId);
+            return getTasksFromStatement(statement);
+        } catch (SQLException | ConverterException e) {
+            throw new DaoException(e);
+        }
     }
 
     @Override

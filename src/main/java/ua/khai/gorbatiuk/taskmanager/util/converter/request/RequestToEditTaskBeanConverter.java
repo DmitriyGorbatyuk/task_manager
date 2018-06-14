@@ -13,7 +13,13 @@ public class RequestToEditTaskBeanConverter implements Converter<HttpServletRequ
         EditTaskBean bean = new EditTaskBean();
 
         bean.setName(source.getParameter("taskName"));
-        bean.setDate(LocalDateTime.parse(source.getParameter("taskDate")));
+        String date = source.getParameter("taskDate");
+        if(date == null || date.equals("")) {
+            bean.setDate(null);
+        } else {
+            bean.setDate(LocalDateTime.parse(date));
+        }
+
 
         setComplexity(source, bean);
         bean.setDescription(source.getParameter("taskDescription"));

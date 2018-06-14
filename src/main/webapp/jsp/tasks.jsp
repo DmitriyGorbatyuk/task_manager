@@ -29,21 +29,33 @@ JSTL i18n tag library.
 <body>
 <div class="container-fluid">
     <br>
-    <div class="row">
-        <div class="col-md-10">
-            <h3>Tasks</h3>
+
+    <nav class="navbar navbar-default">
+        <div class="container-fluid">
+            <div class="navbar-header">
+                <a class="navbar-brand" href="/tasks">Task manager</a>
+            </div>
+            <ul class="nav navbar-nav">
+                <li class="active"><a href="/tasks">All task</a></li>
+                <li ><a href="/todaysTasks">Today</a></li>
+                <li><a href="/categories">Categories</a></li>
+            </ul>
+            <ul class="nav navbar-nav navbar-right">
+                <li>
+                    <form method="post" action="/logout">
+                        <input class="btn navbar-btn " type="submit" value="Log out"/>
+                        <br>
+                    </form>
+                </li>
+            </ul>
         </div>
-        <div class="col-md-2">
-            <form method="post" action="/logout">
-                <input class="btn btn-default" type="submit" value="Log out"/>
-            </form>
-        </div>
-    </div>
+    </nav>
     <div class="row">
 
         <div class="col-md-3">
             <div class="panel panel-default">
                 <ul class="nav flex-column ">
+
                     <c:if test="${neighbors[0].rootId ne 1}">
                         <li class="nav-item">
                             <a href="/tasks?currentTaskId=${neighbors[0].rootId}">Go back one level</a>
@@ -93,11 +105,11 @@ JSTL i18n tag library.
                             <thead>
                             <tr>
                                 <td></td>
-                                <td>Name</td>
-                                <td>Complexity</td>
-                                <td>Category</td>
-                                <td>Spent time</td>
-                                <td></td>
+                                <td><a href="/tasks?sort=name"><h6>Name</h6></a></td>
+                                <td><a href="/tasks?sort=complexity"><h6>Complexity</h6></a></td>
+                                <td><a href="/tasks?sort=category"><h6>Category</h6></a></td>
+                                <td><a href="/tasks?sort=time"><h6>Spent time</h6></a></td>
+                                <td><a href="/tasks?sort=none"><h6>Without sorting</h6></a></td>
                             </tr>
                             </thead>
                             <tbody>
@@ -124,7 +136,7 @@ JSTL i18n tag library.
 
                                                 <td>${child.complexity}</td>
                                                 <td>
-                                                    <div id="circle" style="background:#${child.category.color}"/>
+                                                    <div class="circle" style="background:#${child.category.color}"/>
                                                 </td>
                                                 <td>${child.formattedTime}</td>
                                                 <td class="col-md-2">
@@ -181,7 +193,7 @@ JSTL i18n tag library.
                                 </c:when>
                                 <c:otherwise>
                                     <tr>
-                                        <td colspan="5" class="text-center">Add new task</td>
+                                        <td colspan="6" class="text-center">There is no subtasks. You can add new one</td>
                                     </tr>
                                 </c:otherwise>
                             </c:choose>
@@ -195,6 +207,7 @@ JSTL i18n tag library.
                 </c:choose>
             </div>
         </div>
+
         <div class="col-md-3">
             <c:if test="${not empty currentTask}">
                 <form class="form-group" action="/editTask" method="post">
@@ -205,7 +218,8 @@ JSTL i18n tag library.
                         <input class="form-control" type="text" name="taskName" value="${currentTask.name}"/>
                         <small class="text-muted">Expiration date:</small>
                         <br>
-                        <input class="form-control" type="datetime-local" name="taskDate" value="${currentTask.date}"/>
+                        <input class="form-control" type="datetime-local" step="60" name="taskDate"
+                               value="${currentTask.date}"/>
                         <small class="text-muted">Complexity:</small>
                         <br>
                         <input class="form-control" type="number" name="taskComplexity" min="0" max="10"
@@ -233,6 +247,7 @@ JSTL i18n tag library.
                 </form>
             </c:if>
         </div>
+
     </div>
 </div>
 <script>

@@ -22,23 +22,74 @@ public class CategoryServiceImpl implements CategoryService {
     }
 
     @Override
-    public List<Category> getAllByUserId() {
+    public List<Category> getAllByUserId(Integer userId) {
         try {
-            return transactionManager.transact(() -> categoryDao.getAll());
+            return transactionManager.transact(() -> categoryDao.getAllByUserId(userId));
         } catch (DaoException e) {
             throw new ServiceException(e);
         }
     }
 
     @Override
-    public Category getByUserIdAndCategoryId(Integer id) {
+    public Category getByUserIdAndCategoryId(Integer userId, Integer id) {
         try {
             return transactionManager.transact(() ->  {
-                Category category = categoryDao.getById(id);
+                Category category = categoryDao.getByUserIdAndCategoryId(userId, id);
                 if(category == null) {
                     throw new WrongUserDataException("There is not category with id:" + id);
                 }
                 return category;
+            });
+        } catch (DaoException e) {
+            throw new ServiceException(e);
+        }
+    }
+
+    @Override
+    public List<Category> getAllByUserIdAndCategoryRootId(Integer userId, Integer id) {
+        try {
+            return transactionManager.transact(() ->  {
+                List<Category> categories = categoryDao.getALlByUserIdAndCategoryRootId(userId, id);
+                if(categories.isEmpty()) {
+                    throw new WrongUserDataException("There is not category with root id:" + id);
+                }
+                return categories;
+            });
+        } catch (DaoException e) {
+            throw new ServiceException(e);
+        }
+    }
+
+    @Override
+    public void add(Integer id, Integer rootId, String categoryName) {
+        try {
+            transactionManager.transact(() ->  {
+                categoryDao.add(id, rootId, categoryName);
+                return null;
+            });
+        } catch (DaoException e) {
+            throw new ServiceException(e);
+        }
+    }
+
+    @Override
+    public void delete(Integer id, Integer rootId) {
+        try {
+            transactionManager.transact(() ->  {
+                categoryDao.delete(id, rootId);
+                return null;
+            });
+        } catch (DaoException e) {
+            throw new ServiceException(e);
+        }
+    }
+
+    @Override
+    public void update(Category category) {
+        try {
+            transactionManager.transact(() ->  {
+                categoryDao.update(category);
+                return null;
             });
         } catch (DaoException e) {
             throw new ServiceException(e);

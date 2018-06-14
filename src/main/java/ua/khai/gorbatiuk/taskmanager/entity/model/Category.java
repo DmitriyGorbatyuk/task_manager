@@ -1,26 +1,26 @@
 package ua.khai.gorbatiuk.taskmanager.entity.model;
 
 public class Category extends DBEntity {
-    private Integer idRoot;
+    private Integer rootId;
     private String name;
     private String color;
 
     public Category() {
     }
 
-    public Category(Integer id, Integer idRoot, String name, String color) {
+    public Category(Integer id, Integer rootId, String name, String color) {
         super(id);
-        this.idRoot = idRoot;
+        this.rootId = rootId;
         this.name = name;
         this.color = color;
     }
 
-    public Integer getIdRoot() {
-        return idRoot;
+    public Integer getRootId() {
+        return rootId;
     }
 
-    public void setIdRoot(Integer idRoot) {
-        this.idRoot = idRoot;
+    public void setRootId(Integer rootId) {
+        this.rootId = rootId;
     }
 
     public String getName() {

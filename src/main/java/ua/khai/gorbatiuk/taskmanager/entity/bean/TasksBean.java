@@ -1,22 +1,43 @@
 package ua.khai.gorbatiuk.taskmanager.entity.bean;
 
+import ua.khai.gorbatiuk.taskmanager.entity.model.Task;
+import ua.khai.gorbatiuk.taskmanager.entity.model.User;
+
 public class TasksBean {
-    private Integer userId;
-    private Integer currentTaskId;
+    private User user;
+    private Task task;
+    private String sortField;
+    private Boolean isAscending;
 
-    public Integer getUserId() {
-        return userId;
+    public User getUser() {
+        return user;
     }
 
-    public void setUserId(Integer userId) {
-        this.userId = userId;
+    public void setUser(User user) {
+        this.user = user;
     }
 
-    public Integer getCurrentTaskId() {
-        return currentTaskId;
+    public Task getTask() {
+        return task;
     }
 
-    public void setCurrentTaskId(Integer currentTaskId) {
-        this.currentTaskId = currentTaskId;
+    public void setTask(Task task) {
+        this.task = task;
+    }
+
+    public String getSortField() {
+        return sortField;
+    }
+
+    public void setSortField(String sortField) {
+        this.sortField = sortField;
+    }
+
+    public Boolean getAscending() {
+        return isAscending;
+    }
+
+    public void setAscending(Boolean ascending) {
+        isAscending = ascending;
     }
 }

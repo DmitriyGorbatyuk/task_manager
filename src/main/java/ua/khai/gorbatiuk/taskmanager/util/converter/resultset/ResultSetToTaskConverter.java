@@ -31,7 +31,7 @@ public class ResultSetToTaskConverter implements Converter<ResultSet, Task> {
 
             String date = source.getString(Table.Task.DATE);
             if(date == null) {
-                task.setDate(LocalDateTime.now().withNano(0).withSecond(0));
+                task.setDate(null);
             } else {
                 task.setDate(LocalDateTime.parse(date.toString()));
             }

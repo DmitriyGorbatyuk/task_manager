@@ -17,6 +17,7 @@ public class Attributes {
     public static final String REQUEST_TO_EDIT_TASK_BEAN_CONVERTER = "requestToEditTaskBeanConverter";
     public static final String EDIT_TASK_BEAN_TO_TASK_CONVERTER = "editTaskBeanToTask";
     public static final String REQUEST_TO_EXECUTING_TASK_BEAN_CONVERTER = "requestToExecutingTaskBeanConverter";
+    public static final String REQUEST_TO_CATEGORIES_BEAN_CONVERTER = "requestToCategoriessBeanConverter";
 
     private Attributes() {}
 }

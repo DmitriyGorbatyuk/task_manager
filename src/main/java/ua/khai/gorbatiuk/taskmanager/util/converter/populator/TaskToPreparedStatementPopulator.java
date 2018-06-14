@@ -12,7 +12,12 @@ public class TaskToPreparedStatementPopulator implements Populator<Task, Prepare
         try {
             int k=1;
             target.setString(k++, source.getName());
-            target.setString(k++, source.getDate().toString());
+            if(source.getDate() == null) {
+                target.setNull(k++, java.sql.Types.VARCHAR);
+            } else {
+                target.setString(k++, source.getDate().toString());
+            }
+
             target.setInt(k++, source.getComplexity());
             target.setString(k++, source.getDescription());
             target.setInt(k++, source.getTime());
