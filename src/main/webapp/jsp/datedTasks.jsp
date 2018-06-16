@@ -37,8 +37,8 @@ JSTL i18n tag library.
             </div>
             <ul class="nav navbar-nav">
                 <li><a href="/tasks">All task</a></li>
-                <li class="active" ><a href="/todaysTasks">Today</a></li>
-                <li><a href="/datedTasks">Schedule</a></li>
+                <li><a href="/todaysTasks">Today</a></li>
+                <li class="active"><a href="/datedTasks">Schedule</a></li>
                 <li><a href="/categories">Categories</a></li>
             </ul>
         </div>

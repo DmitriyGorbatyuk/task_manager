@@ -1,8 +1,10 @@
 package ua.khai.gorbatiuk.taskmanager.service.impl;
 
 import ua.khai.gorbatiuk.taskmanager.dao.CategoryDao;
+import ua.khai.gorbatiuk.taskmanager.dao.TaskDao;
 import ua.khai.gorbatiuk.taskmanager.dao.connection.MysqlTransactionManager;
 import ua.khai.gorbatiuk.taskmanager.entity.model.Category;
+import ua.khai.gorbatiuk.taskmanager.entity.model.Task;
 import ua.khai.gorbatiuk.taskmanager.exception.DaoException;
 import ua.khai.gorbatiuk.taskmanager.exception.ServiceException;
 import ua.khai.gorbatiuk.taskmanager.exception.WrongUserDataException;
@@ -15,10 +17,12 @@ public class CategoryServiceImpl implements CategoryService {
     private MysqlTransactionManager transactionManager;
 
     private CategoryDao categoryDao;
+    private TaskDao taskDao;
 
-    public CategoryServiceImpl(MysqlTransactionManager transactionManager, CategoryDao categoryDao) {
+    public CategoryServiceImpl(MysqlTransactionManager transactionManager, CategoryDao categoryDao, TaskDao taskDao) {
         this.transactionManager = transactionManager;
         this.categoryDao = categoryDao;
+        this.taskDao = taskDao;
     }
 
     @Override
@@ -61,10 +65,12 @@ public class CategoryServiceImpl implements CategoryService {
     }
 
     @Override
-    public void add(Integer id, Integer rootId, String categoryName) {
+    public void add(Category newCategory) {
         try {
             transactionManager.transact(() ->  {
-                categoryDao.add(id, rootId, categoryName);
+                Category rootCategory = categoryDao.getByCategoryId(newCategory.getRootId());
+                newCategory.setColor(rootCategory.getColor());
+                categoryDao.add(newCategory);
                 return null;
             });
         } catch (DaoException e) {
@@ -73,10 +79,16 @@ public class CategoryServiceImpl implements CategoryService {
     }
 
     @Override
-    public void delete(Integer id, Integer rootId) {
+    public void delete(Integer id, Integer userId) {
         try {
             transactionManager.transact(() ->  {
-                categoryDao.delete(id, rootId);
+                List<Category> children = categoryDao.getALlByUserIdAndCategoryRootId(userId, id);
+                List<Task> tasks = taskDao.getAllByCategoryId(id);
+                if(children.isEmpty() && tasks.isEmpty()) {
+                    categoryDao.delete(id, userId);
+                } else {
+                 throw new WrongUserDataException("Category cannot be deleted, it has subcategories or related tasks");
+                }
                 return null;
             });
         } catch (DaoException e) {

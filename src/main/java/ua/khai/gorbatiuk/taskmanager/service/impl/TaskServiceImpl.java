@@ -42,11 +42,8 @@ public class TaskServiceImpl implements TaskService {
     public List<Task> getAllByUserId(Integer userId) {
         try {
             return transactionManager.transact(() -> {
-                List<Task> tasks = taskDao.getAllByUserIdAndRootTaskId(userId, 1);
+                List<Task> tasks = taskDao.getAllByUserId(userId);
                 if (!tasks.isEmpty()) {
-                    for (Task task : tasks) {
-                        readTimeRecursively(task);
-                    }
                     return tasks;
                 }
                 throw new WrongUserDataException("There are not task with userId=" + userId);
@@ -89,7 +86,6 @@ public class TaskServiceImpl implements TaskService {
                     return tasks;
                 }
                 throw new WrongUserDataException("There are not task with rootTaskId=" + tasksBean.getTask().getRootId());
-
             });
         } catch (DaoException e) {
             throw new ServiceException(e);
@@ -103,7 +99,7 @@ public class TaskServiceImpl implements TaskService {
         }
         currentTask.setIsLeaf(!children.stream().anyMatch(item -> !item.getChecked()));
         if (!children.isEmpty()) {
-            currentTask.setTime(children.stream().mapToInt(item -> item.getTime()).sum());
+            currentTask.setTime(children.stream().mapToInt(item -> item.getTime()).sum() + currentTask.getTime());
         }
     }
 
@@ -144,7 +140,6 @@ public class TaskServiceImpl implements TaskService {
             transactionManager.transact(() -> {
                 Task rootTask = taskDao.getByUserIdAndTaskId(newTask.getUser().getId(), newTask.getRootId());
                 newTask.setCategory(rootTask.getCategory());
-                newTask.setDate(LocalDateTime.now().withSecond(0).withNano(0));
                 taskDao.add(newTask);
                 return 0;
             });
@@ -217,6 +212,9 @@ public class TaskServiceImpl implements TaskService {
                 task.setChecked(!task.getChecked());
                 Integer updatedLines = taskDao.update(task);
                 if (updatedLines != null && updatedLines == 1) {
+                    if(task.getChecked() && task.getRepeatAfter() != null) {
+                        addRepeatableTask(task);
+                    }
                     return updatedLines;
                 }
                 throw new ServiceException("There is more updated task lines than 1(" + updatedLines + ")");
@@ -226,17 +224,79 @@ public class TaskServiceImpl implements TaskService {
         }
     }
 
+    private void addRepeatableTask(Task task) {
+        Task addedTask = taskDao.add(task);
+        if(task.getDate() == null) {
+            addedTask.setDate(LocalDateTime.now().withSecond(0).withNano(0).plusDays(task.getRepeatAfter()));
+        } else {
+            addedTask.setDate(task.getDate().plusDays(task.getRepeatAfter()));
+        }
+        addedTask.setChecked(false);
+        addedTask.setTime(0);
+        addedTask.setRepeatAfter(task.getRepeatAfter());
+        addedTask.setComplexity(task.getComplexity());
+        addedTask.setDescription(task.getDescription());
+        taskDao.update(addedTask);
+    }
+
     @Override
     public List<Task> getTodayTasks(TasksBean tasksBean) {
         try {
             return transactionManager.transact(() -> {
                 List<Task> allTasks = taskDao.getAllByUserId(tasksBean.getUser().getId());
                 LocalDate today = LocalDate.now();
-                List<Task> todays = allTasks.stream().filter(task -> task.getDate() != null &&
-                        task.getDate().toLocalDate().equals(today)).collect(Collectors.toList());
+                List<Task> todays = allTasks.stream()
+                        .filter(task -> task.getDate() != null &&
+                        task.getDate().toLocalDate().equals(today) && !task.getChecked())
+                        .collect(Collectors.toList());
                 todays.stream().forEach(task -> readTimeRecursively(task));
                 sortTasks(todays, tasksBean.getSortField(), tasksBean.getAscending());
                 return todays;
+            });
+        } catch (DaoException e) {
+            throw new ServiceException(e);
+        }
+    }
+
+    @Override
+    public List<Task> getDatedTasks(TasksBean tasksBean) {
+        try {
+            return transactionManager.transact(() -> {
+                List<Task> allTasks = taskDao.getAllByUserId(tasksBean.getUser().getId());
+                List<Task> dated = allTasks.stream()
+                        .filter(task -> task.getDate() != null && !task.getChecked())
+                        .collect(Collectors.toList());
+                dated.stream().forEach(task -> readTimeRecursively(task));
+                sortTasks(dated, tasksBean.getSortField(), tasksBean.getAscending());
+                return dated;
+            });
+        } catch (DaoException e) {
+            throw new ServiceException(e);
+        }
+    }
+
+    @Override
+    public void delete(Integer taskId, Integer userId) {
+        try {
+            transactionManager.transact(() -> {
+                List<Task> children = taskDao.getAllByUserIdAndRootTaskId(userId, taskId);
+                if (children.isEmpty()) {
+                    Task deletedTask = taskDao.getByUserIdAndTaskId(userId, taskId);
+                    Task parent = taskDao.getByUserIdAndTaskId(userId, deletedTask.getRootId());
+
+                    Integer updatedLines = taskDao.delete(taskId, userId);
+
+                    parent.setTime(parent.getTime() + deletedTask.getTime());
+                    taskDao.update(parent);
+
+                    if (updatedLines != null && updatedLines == 1) {
+                        return updatedLines;
+                    }
+                    throw new ServiceException("There is more updated task lines than 1(" + updatedLines + ")");
+                } else {
+                    throw new WrongUserDataException("Task cannot be deleted, it has subtasks");
+                }
+
             });
         } catch (DaoException e) {
             throw new ServiceException(e);

@@ -2,6 +2,7 @@ package ua.khai.gorbatiuk.taskmanager.web.servlet.categories;
 
 import org.apache.log4j.Logger;
 import ua.khai.gorbatiuk.taskmanager.entity.bean.CategoriesBean;
+import ua.khai.gorbatiuk.taskmanager.entity.model.Category;
 import ua.khai.gorbatiuk.taskmanager.service.CategoryService;
 import ua.khai.gorbatiuk.taskmanager.util.constant.Attributes;
 import ua.khai.gorbatiuk.taskmanager.util.converter.Converter;
@@ -25,12 +26,18 @@ public class AddCategoryServlet extends HttpServlet {
     private static final int ROOT_TASK_ID = 1;
 
     private CategoryService categoryService;
-    private Converter<HttpServletRequest, CategoriesBean> requestToCategoriesBeanConverter;
+    private Converter<HttpServletRequest, Category> requestToCategoryConverter;
 
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-        CategoriesBean categoriesBean = requestToCategoriesBeanConverter.convert(request);
-        categoryService.add(categoriesBean.getUser().getId(), categoriesBean.getCategory().getRootId(), categoriesBean.getCategory().getName());
+        Category currentCategory = requestToCategoryConverter.convert(request);
+
+        Category newCategory = new Category();
+        newCategory.setName(currentCategory.getName());
+        newCategory.setRootId(currentCategory.getId());
+        newCategory.setUser(currentCategory.getUser());
+
+        categoryService.add(newCategory);
         response.sendRedirect(CATEGORIES_URI);
     }
 
@@ -38,8 +45,8 @@ public class AddCategoryServlet extends HttpServlet {
     public void init(ServletConfig config) throws ServletException {
         super.init(config);
         categoryService = (CategoryService) getServletContext().getAttribute(Attributes.CATEGORY_SERVICE);
-        requestToCategoriesBeanConverter = (Converter<HttpServletRequest, CategoriesBean>)
-                getServletContext().getAttribute(Attributes.REQUEST_TO_CATEGORIES_BEAN_CONVERTER);
+        requestToCategoryConverter = (Converter<HttpServletRequest, Category>)
+                getServletContext().getAttribute(Attributes.REQUEST_TO_CATEGORY_CONVERTER);
     }
 
 }

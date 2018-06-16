@@ -8,6 +8,7 @@ import ua.khai.gorbatiuk.taskmanager.exception.ConverterException;
 import ua.khai.gorbatiuk.taskmanager.exception.DaoException;
 import ua.khai.gorbatiuk.taskmanager.util.converter.Converter;
 import ua.khai.gorbatiuk.taskmanager.util.converter.populator.Populator;
+import ua.khai.gorbatiuk.taskmanager.util.converter.resultset.ResultSetToUserTaskTimeConverter;
 
 import java.sql.*;
 import java.util.ArrayList;
@@ -16,7 +17,7 @@ import java.util.List;
 public class TaskDaoMySql extends AbstractMysqlDao implements TaskDao {
 
     private static final String TASK_COLUMNS = "`tasks`.`id_task`, `tasks`.`id_root`, `tasks`.`name`, `tasks`.`date`, " +
-            "`tasks`.`complexity`, `tasks`.`text`, `tasks`.`time`, `tasks`.`checked`, `tasks`.`fk_user` ";
+            " `tasks`.`repeat_after`, `tasks`.`complexity`, `tasks`.`text`, `tasks`.`time`, `tasks`.`checked`, `tasks`.`fk_user` ";
     private static final String CATEGORY_COLUMNS = "`categories`.`id_category`, `categories`.`id_root`, `categories`.`name`," +
             " `categories`.`color`";
     private static final String TASKS = "`task_manager`.`tasks`";
@@ -29,10 +30,13 @@ public class TaskDaoMySql extends AbstractMysqlDao implements TaskDao {
     private static final String SELECT_BY_USERID_TASKID = SELECT_BY_USERID + " and `tasks`.`id_task` = ? ";
 
     private static final String ADD_TASK = "INSERT INTO " + TASKS +
-            " (`id_task`, `id_root`, `name`, `fk_user`, `date`, `fk_category`) " +
-            "values(default, ?, ?, ?, ?, ?)";
-    private static final String UPDATE_TASK = "UPDATE " + TASKS + " SET `name` = ?, `date` = ?, `complexity` = ?, " +
+            " (`id_task`, `id_root`, `name`, `fk_user`, `fk_category`) " +
+            "values(default, ?, ?, ?, ?)";
+    private static final String UPDATE_TASK = "UPDATE " + TASKS + " SET `name` = ?, `date` = ?, `repeat_after` = ?, `complexity` = ?, " +
             "`text` = ?, `time` = ?, `checked` = ? ,`fk_category` = ? where `id_task` = ? AND `fk_user` = ?";
+    private static final String SELECT_BY_CATEGORY_ID = "SELECT " + TASK_COLUMNS + ", " + CATEGORY_COLUMNS + " FROM " + TASKS +
+            " INNER JOIN " + CATEGORIES + " ON `tasks`.`fk_category` = `categories`.`id_category`" + " where `tasks`.`fk_category` = ?";
+    private static final String DELETE_TASK = "DELETE FROM " + TASKS + " where `id_task` = ? AND `fk_user` = ?";
 
 
     private Converter<ResultSet, Task> resultSetToTaskConverter;
@@ -99,17 +103,23 @@ public class TaskDaoMySql extends AbstractMysqlDao implements TaskDao {
     }
 
     @Override
-    public void add(Task newTask) {
-        try (PreparedStatement statement = getConnection().prepareStatement(ADD_TASK)) {
+    public Task add(Task newTask) {
+        try (PreparedStatement statement = getConnection().prepareStatement(ADD_TASK, Statement.RETURN_GENERATED_KEYS)) {
             int k = 1;
 
             statement.setInt(k++, newTask.getRootId());
             statement.setString(k++, newTask.getName());
             statement.setInt(k++, newTask.getUser().getId());
-            statement.setString(k++, newTask.getDate().toString());
             statement.setInt(k++, newTask.getCategory().getId());
 
             statement.execute();
+            try(ResultSet resultSet = statement.getGeneratedKeys()) {
+                if(resultSet.next()) {
+                    newTask.setId(resultSet.getInt(1));
+                    return newTask;
+                }
+            }
+            return null;
         } catch (SQLException | ConverterException e) {
             throw new DaoException(e);
         }
@@ -121,6 +131,28 @@ public class TaskDaoMySql extends AbstractMysqlDao implements TaskDao {
             taskToPreparedStatementPopulator.populate(updatedTask, statement);
             return statement.executeUpdate();
         } catch (SQLException | ConverterException e) {
+            throw new DaoException(e);
+        }
+    }
+
+    @Override
+    public List<Task> getAllByCategoryId(Integer id) {
+        try (PreparedStatement statement = getConnection().prepareStatement(SELECT_BY_CATEGORY_ID)) {
+            statement.setInt(1, id);
+            return getTasksFromStatement(statement);
+        } catch (SQLException | ConverterException e) {
+            throw new DaoException(e);
+        }
+    }
+
+    @Override
+    public Integer delete(Integer taskId, Integer userId) {
+        try(PreparedStatement statement = getConnection().prepareStatement(DELETE_TASK)) {
+            int k = 1;
+            statement.setInt(k++, taskId);
+            statement.setInt(k++, userId);
+            return statement.executeUpdate();
+        } catch (ConverterException | SQLException e) {
             throw new DaoException(e);
         }
     }

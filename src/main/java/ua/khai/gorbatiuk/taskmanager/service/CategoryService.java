@@ -10,9 +10,9 @@ public interface CategoryService {
     Category getByUserIdAndCategoryId(Integer userId, Integer categoryId);
     List<Category> getAllByUserIdAndCategoryRootId(Integer userId, Integer id);
 
-    void add(Integer id, Integer rootId, String categoryName);
-
-    void delete(Integer id, Integer rootId);
+    void delete(Integer id, Integer userId);
 
     void update(Category category);
+
+    void add(Category newCategory);
 }

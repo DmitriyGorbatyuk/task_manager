@@ -11,9 +11,10 @@ public interface TaskService {
     Task getByUserIdAndTaskId(Integer userId, Integer rootTaskId);
     void add(Task newTask);
     void update(Task updatedTask);
+    void delete(Integer taskId, Integer userId);
     void executeTask(Task task);
     void checkTask(Task task);
     List<Task> getAllByUserId(Integer userId);
-
     List<Task> getTodayTasks(TasksBean tasksBean);
+    List<Task> getDatedTasks(TasksBean tasksBean);
 }

@@ -2,8 +2,9 @@ package ua.khai.gorbatiuk.taskmanager.web.servlet.categories;
 
 import org.apache.log4j.Logger;
 import ua.khai.gorbatiuk.taskmanager.entity.bean.CategoriesBean;
+import ua.khai.gorbatiuk.taskmanager.entity.model.Category;
+import ua.khai.gorbatiuk.taskmanager.exception.ServiceException;
 import ua.khai.gorbatiuk.taskmanager.service.CategoryService;
-import ua.khai.gorbatiuk.taskmanager.service.TaskService;
 import ua.khai.gorbatiuk.taskmanager.util.constant.Attributes;
 import ua.khai.gorbatiuk.taskmanager.util.converter.Converter;
 import ua.khai.gorbatiuk.taskmanager.web.servlet.task.TasksServlet;
@@ -25,13 +26,18 @@ public class DeleteCategoryServlet extends HttpServlet {
     private static final int ROOT_TASK_ID = 1;
 
     private CategoryService categoryService;
-    private Converter<HttpServletRequest, CategoriesBean> requestToCategoriesBeanConverter;
+    private Converter<HttpServletRequest, Category> requestToCategoryConverter;
 
 
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-        CategoriesBean categoriesBean = requestToCategoriesBeanConverter.convert(request);
-        categoryService.delete(categoriesBean.getUser().getId(), categoriesBean.getCategory().getRootId());
+        Category category = requestToCategoryConverter.convert(request);
+        try {
+            categoryService.delete(category.getId(), category.getUser().getId());
+        } catch (ServiceException e) {
+            logger.debug(e);
+        }
+
         response.sendRedirect(CATEGORIES_URI);
     }
 
@@ -39,8 +45,8 @@ public class DeleteCategoryServlet extends HttpServlet {
     public void init(ServletConfig config) throws ServletException {
         super.init(config);
         categoryService = (CategoryService) getServletContext().getAttribute(Attributes.CATEGORY_SERVICE);
-        requestToCategoriesBeanConverter = (Converter<HttpServletRequest, CategoriesBean>)
-                getServletContext().getAttribute(Attributes.REQUEST_TO_CATEGORIES_BEAN_CONVERTER);
+        requestToCategoryConverter = (Converter<HttpServletRequest, Category>)
+                getServletContext().getAttribute(Attributes.REQUEST_TO_CATEGORY_CONVERTER);
     }
 
 }

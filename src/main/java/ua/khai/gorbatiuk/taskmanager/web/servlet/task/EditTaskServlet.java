@@ -77,6 +77,7 @@ public class EditTaskServlet extends HttpServlet {
         updatedTask.setIsLeaf(tasksBean.getTask().getIsLeaf());
         updatedTask.setRootId(tasksBean.getTask().getRootId());
         updatedTask.setChecked(tasksBean.getTask().getChecked());
+        updatedTask.setRepeatAfter(editedTask.getRepeatAfter());
 
         taskService.update(updatedTask);
     }

@@ -14,6 +14,7 @@ public class EditTaskBeanValidator {
         Map<String, String> map = new HashMap<>();
 
         validateTaskName(task, map);
+        validateTaskRepeatAfter(task, map);
         validateTaskComplexity(task, map);
         validateTaskDescription(task, map);
         validateTaskTime(task, map);
@@ -31,10 +32,16 @@ public class EditTaskBeanValidator {
         }
     }
 
+    private void validateTaskRepeatAfter(EditTaskBean task, Map<String, String> map) {
+        if(task.getRepeatAfter() != null && (task.getRepeatAfter() < 1 || task.getRepeatAfter() > 365)){
+            map.put("taskRepeatAfter", "This field have to be between 1 and 365 or empty at all");
+        }
+    }
+
     private void validateTaskComplexity(EditTaskBean task, Map<String, String> map) {
         if(task.getComplexity() == null) {
             map.put("taskComplexity", "This field cannot be empty");
-        }
+        } else
         if(task.getComplexity() > 10 || task.getComplexity() < 0){
             map.put("taskComplexity", "This field have to be between 0 and 10");
         }

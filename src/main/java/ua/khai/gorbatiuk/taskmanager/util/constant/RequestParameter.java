@@ -10,6 +10,7 @@ public class RequestParameter {
     public static final String TASK_ADD_POSITION_CHILDREN = "children";
     public static final String TASK_ADD_POSITION = "position";
     public static final String CURRENT_TASK = "currentTask";
+    public static final String DATED_TASKS = "datedTasks";
 
     private RequestParameter() {}
 }

@@ -13,6 +13,7 @@ public class Task extends DBEntity {
     private Category category;
     private User user;
     private Boolean isLeaf;
+    private Integer repeatAfter;
 
     public Task() {
     }
@@ -109,6 +110,22 @@ public class Task extends DBEntity {
 
     public void setIsLeaf(Boolean isLeaf) {
         this.isLeaf = isLeaf;
+    }
+
+    public Boolean getLeaf() {
+        return isLeaf;
+    }
+
+    public void setLeaf(Boolean leaf) {
+        isLeaf = leaf;
+    }
+
+    public Integer getRepeatAfter() {
+        return repeatAfter;
+    }
+
+    public void setRepeatAfter(Integer repeatAfter) {
+        this.repeatAfter = repeatAfter;
     }
 
     public String getFormattedTime() {

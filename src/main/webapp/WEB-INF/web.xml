@@ -37,6 +37,16 @@
     </servlet>
 
     <servlet>
+        <servlet-name>todaysTasks</servlet-name>
+        <servlet-class>ua.khai.gorbatiuk.taskmanager.web.servlet.task.TodaysTasks</servlet-class>
+    </servlet>
+
+    <servlet>
+        <servlet-name>datedTasks</servlet-name>
+        <servlet-class>ua.khai.gorbatiuk.taskmanager.web.servlet.task.DatedTasksServlet</servlet-class>
+    </servlet>
+
+    <servlet>
         <servlet-name>addTasks</servlet-name>
         <servlet-class>ua.khai.gorbatiuk.taskmanager.web.servlet.task.AddTaskServlet</servlet-class>
     </servlet>
@@ -44,6 +54,11 @@
     <servlet>
         <servlet-name>editTask</servlet-name>
         <servlet-class>ua.khai.gorbatiuk.taskmanager.web.servlet.task.EditTaskServlet</servlet-class>
+    </servlet>
+
+    <servlet>
+        <servlet-name>deleteTask</servlet-name>
+        <servlet-class>ua.khai.gorbatiuk.taskmanager.web.servlet.task.DeleteTaskServlet</servlet-class>
     </servlet>
 
     <servlet>
@@ -62,8 +77,18 @@
     </servlet>
 
     <servlet>
-        <servlet-name>todaysTasks</servlet-name>
-        <servlet-class>ua.khai.gorbatiuk.taskmanager.web.servlet.task.TodaysTasks</servlet-class>
+        <servlet-name>addCategory</servlet-name>
+        <servlet-class>ua.khai.gorbatiuk.taskmanager.web.servlet.categories.AddCategoryServlet</servlet-class>
+    </servlet>
+
+    <servlet>
+        <servlet-name>editCategory</servlet-name>
+        <servlet-class>ua.khai.gorbatiuk.taskmanager.web.servlet.categories.EditCategoryServlet</servlet-class>
+    </servlet>
+
+    <servlet>
+        <servlet-name>deleteCategory</servlet-name>
+        <servlet-class>ua.khai.gorbatiuk.taskmanager.web.servlet.categories.DeleteCategoryServlet</servlet-class>
     </servlet>
 
     <!--Servlet mapping -->
@@ -89,6 +114,16 @@
     </servlet-mapping>
 
     <servlet-mapping>
+        <servlet-name>todaysTasks</servlet-name>
+        <url-pattern>/todaysTasks</url-pattern>
+    </servlet-mapping>
+
+    <servlet-mapping>
+        <servlet-name>datedTasks</servlet-name>
+        <url-pattern>/datedTasks</url-pattern>
+    </servlet-mapping>
+
+    <servlet-mapping>
         <servlet-name>addTasks</servlet-name>
         <url-pattern>/addTasks</url-pattern>
     </servlet-mapping>
@@ -96,6 +131,11 @@
     <servlet-mapping>
         <servlet-name>editTask</servlet-name>
         <url-pattern>/editTask</url-pattern>
+    </servlet-mapping>
+
+    <servlet-mapping>
+        <servlet-name>deleteTask</servlet-name>
+        <url-pattern>/deleteTask</url-pattern>
     </servlet-mapping>
 
     <servlet-mapping>
@@ -114,8 +154,18 @@
     </servlet-mapping>
 
     <servlet-mapping>
-        <servlet-name>todaysTasks</servlet-name>
-        <url-pattern>/todaysTasks</url-pattern>
+        <servlet-name>addCategory</servlet-name>
+        <url-pattern>/addCategory</url-pattern>
+    </servlet-mapping>
+
+    <servlet-mapping>
+        <servlet-name>editCategory</servlet-name>
+        <url-pattern>/editCategory</url-pattern>
+    </servlet-mapping>
+
+    <servlet-mapping>
+        <servlet-name>deleteCategory</servlet-name>
+        <url-pattern>/deleteCategory</url-pattern>
     </servlet-mapping>
 
     <!--Listener-->
@@ -123,14 +173,44 @@
         <listener-class>ua.khai.gorbatiuk.taskmanager.web.listener.ContextListener</listener-class>
     </listener>
 
+    <!--Filter-->
     <filter>
         <filter-name>access</filter-name>
         <filter-class>ua.khai.gorbatiuk.taskmanager.web.filter.AccessFilter</filter-class>
+    </filter>
+
+    <filter>
+        <filter-name>localeSelectFilter</filter-name>
+        <filter-class>ua.khai.gorbatiuk.taskmanager.web.filter.LocaleSelectFilter</filter-class>
+        <init-param>
+            <param-name>defaultLocale</param-name>
+            <param-value>en</param-value>
+        </init-param>
+        <init-param>
+            <param-name>availableLocales</param-name>
+            <param-value>en,ru</param-value>
+        </init-param>
     </filter>
 
     <filter-mapping>
         <filter-name>access</filter-name>
         <url-pattern>/*</url-pattern>
     </filter-mapping>
+
+    <filter-mapping>
+        <filter-name>localeSelectFilter</filter-name>
+        <url-pattern>/*</url-pattern>
+    </filter-mapping>
+
+    <!-- i18n -->
+    <context-param>
+        <param-name>javax.servlet.jsp.jstl.fmt.localizationContext</param-name>
+        <param-value>resources</param-value>
+    </context-param>
+
+    <context-param>
+        <param-name>locales</param-name>
+        <param-value>ru en</param-value>
+    </context-param>
 
 </web-app>

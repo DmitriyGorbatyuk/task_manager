@@ -36,8 +36,9 @@ JSTL i18n tag library.
                 <a class="navbar-brand" href="/tasks">Task manager</a>
             </div>
             <ul class="nav navbar-nav">
-                <li><a href="/tasks">Task</a></li>
-                <li ><a href="/todaysTasks">All task</a></li>
+                <li><a href="/tasks">All Task</a></li>
+                <li><a href="/todaysTasks">Today</a></li>
+                <li><a href="/datedTasks">Schedule</a></li>
                 <li class="active"><a href="/categories">Categories</a></li>
             </ul>
             <ul class="nav navbar-nav navbar-right">
@@ -57,18 +58,12 @@ JSTL i18n tag library.
 
         <div class="col-md-8">
             <div class="form-group">
-                <c:forEach items="${categoriesToTime}" var="entry">
-                    <c:set var="category" value="${entry.key}"/>
-                </c:forEach>
-
-                <c:if test="${category.rootId ne 1}">
-                    <a href="/categories?currentCategoryId=${category.rootId}"> <- Go back one level</a>
+                <c:if test="${currentCategory.id ne 1}">
+                    <a href="/categories?currentCategoryId=${currentCategory.rootId}"> <- Go back one level</a>
                     <br><br>
                 </c:if>
 
-                <c:choose>
-                    <c:when test="${not empty categoriesToTime}">
-                        <form action="/addTasks" method="post">
+                        <form action="/addCategory" method="post">
                             <div class="col-md-10">
                                 <input type="text" name="newCategoryName" placeholder="Name" class="form-control"
                                        maxlength="44" required/>
@@ -90,35 +85,45 @@ JSTL i18n tag library.
                                 <td></td>
                             </tr>
                             </thead>
+
+
+                            <c:choose>
+                            <c:when test="${not empty categoriesToTime}">
                             <tbody>
                             <c:choose>
                                 <c:when test="${not empty categoriesToTime}">
                                     <c:forEach items="${categoriesToTime}" var="entry">
                                         <tr>
-                                            <form>
-                                                <td>
-                                                    <a href="/categories?currentCategoryId=${entry.key.id}">Inner
-                                                        categories</a>
-                                                </td>
-                                                <td>
-                                                    <input class="form-control" type="text" name="newCategoryName" value="${entry.key.name}"/>
-                                                </td>
+                                            <form method="post" action="editCategory">
+                                                <input type="text" name="currentCategoryId" value="${entry.category.id}" hidden>
+                                            <td>
+                                                <a href="/categories?currentCategoryId=${entry.category.id}">Inner
+                                                    categories</a>
+                                            </td>
+                                            <td>
+                                                <input class="form-control" type="text" name="newCategoryName"
+                                                       value="${entry.category.name}"/>
+                                            </td>
 
-                                                <td>
-                                                    <input id="${entry.key.id}" style="background:#${entry.key.color}"
-                                                           onchange="changeColor(${entry.key.id})" class="button-circle"
-                                                           type="color" name="newCategoryColor">
-                                                </td>
-                                                <td>${entry.value}</td>
-                                                <td>
+                                            <td>
+                                                <input id="${entry.category.id}" style="background:${entry.category.color}"
+                                                       onchange="changeColor(${entry.category.id})" class="button-circle"
+                                                       type="color" name="newCategoryColor">
+                                            </td>
+                                            <td>${entry.formattedTime}</td>
+                                            <td>
                                                     <input class="form-control btn btn-info" type="submit"
                                                            value="Edit"/>
-                                                </td>
-                                                <td>
+                                            </td>
+                                            </form>
+                                            <td>
+                                                <form method="post" action="/deleteCategory">
+                                                    <input type="text" name="currentCategoryId" value="${entry.category.id}" hidden>
                                                     <input class="form-control btn btn-danger" type="submit"
                                                            value="Delete"/>
-                                                </td>
-                                            </form>
+                                                </form>
+                                            </td>
+
                                         </tr>
                                     </c:forEach>
                                 </c:when>
@@ -130,14 +135,15 @@ JSTL i18n tag library.
                                     </tr>
                                 </c:otherwise>
                             </c:choose>
-
                             </tbody>
+                            </c:when>
+                                <c:otherwise>
+                                    <tr>
+                                        <td colspan="6" class="text-center">There is no subcategories. You can add new one</td>
+                                    </tr>
+                                </c:otherwise>
+                            </c:choose>
                         </table>
-                    </c:when>
-                    <c:otherwise>
-                        <h4 class="text-center">There is not any category</h4>
-                    </c:otherwise>
-                </c:choose>
             </div>
         </div>
 

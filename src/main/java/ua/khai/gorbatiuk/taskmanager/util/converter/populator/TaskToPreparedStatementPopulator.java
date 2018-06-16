@@ -5,6 +5,7 @@ import ua.khai.gorbatiuk.taskmanager.exception.PopulatorException;
 
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
+import java.sql.Types;
 
 public class TaskToPreparedStatementPopulator implements Populator<Task, PreparedStatement> {
     @Override
@@ -12,13 +13,22 @@ public class TaskToPreparedStatementPopulator implements Populator<Task, Prepare
         try {
             int k=1;
             target.setString(k++, source.getName());
+
             if(source.getDate() == null) {
                 target.setNull(k++, java.sql.Types.VARCHAR);
             } else {
                 target.setString(k++, source.getDate().toString());
             }
 
+            if(source.getRepeatAfter() == null) {
+                target.setNull(k++, Types.INTEGER);
+            } else {
+                target.setInt(k++, source.getRepeatAfter());
+            }
+
             target.setInt(k++, source.getComplexity());
+
+
             target.setString(k++, source.getDescription());
             target.setInt(k++, source.getTime());
             target.setBoolean(k++, source.getChecked());

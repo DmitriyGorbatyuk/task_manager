@@ -5,6 +5,7 @@ import java.time.LocalDateTime;
 public class EditTaskBean {
     private String name;
     private LocalDateTime date;
+    private Integer repeatAfter;
     private Integer complexity;
     private String description;
     private Integer time;
@@ -24,6 +25,14 @@ public class EditTaskBean {
 
     public void setDate(LocalDateTime date) {
         this.date = date;
+    }
+
+    public Integer getRepeatAfter() {
+        return repeatAfter;
+    }
+
+    public void setRepeatAfter(Integer repeatAfter) {
+        this.repeatAfter = repeatAfter;
     }
 
     public Integer getComplexity() {

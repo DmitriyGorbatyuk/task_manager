@@ -13,13 +13,8 @@ public class RequestToEditTaskBeanConverter implements Converter<HttpServletRequ
         EditTaskBean bean = new EditTaskBean();
 
         bean.setName(source.getParameter("taskName"));
-        String date = source.getParameter("taskDate");
-        if(date == null || date.equals("")) {
-            bean.setDate(null);
-        } else {
-            bean.setDate(LocalDateTime.parse(date));
-        }
-
+        setDate(source, bean);
+        setRepeatAfter(source, bean);
 
         setComplexity(source, bean);
         bean.setDescription(source.getParameter("taskDescription"));
@@ -27,6 +22,24 @@ public class RequestToEditTaskBeanConverter implements Converter<HttpServletRequ
         setCategoryId(source, bean);
 
         return bean;
+    }
+
+    private void setRepeatAfter(HttpServletRequest source, EditTaskBean bean) {
+        try{
+            String stringRepeatAfter = source.getParameter("repeatAfter");
+            bean.setRepeatAfter(Integer.parseInt(stringRepeatAfter));
+        } catch (NumberFormatException e) {
+            bean.setRepeatAfter(null);
+        }
+    }
+
+    private void setDate(HttpServletRequest source, EditTaskBean bean) {
+        String date = source.getParameter("taskDate");
+        if(date == null || date.equals("")) {
+            bean.setDate(null);
+        } else {
+            bean.setDate(LocalDateTime.parse(date));
+        }
     }
 
 

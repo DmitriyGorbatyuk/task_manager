@@ -35,8 +35,8 @@ public class ResultSetToTaskConverter implements Converter<ResultSet, Task> {
             } else {
                 task.setDate(LocalDateTime.parse(date.toString()));
             }
-
-
+            Integer repeatAfter = source.getInt(Table.Task.REPEAT_AFTER);
+            task.setRepeatAfter(repeatAfter == 0 ? null : repeatAfter);
             task.setTime(source.getInt(Table.Task.TIME));
             task.setComplexity(source.getInt(Table.Task.COMPLEXITY));
             task.setDescription(source.getString(Table.Task.TEXT));

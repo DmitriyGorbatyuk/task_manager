@@ -29,7 +29,7 @@ public class LoginServlet extends HttpServlet {
 
     private static final String USER_BEAN_NAME = "loginUserBean";
     private static final String LOGIN_URI = "/login";
-    private static final String TASKS_URI = "/task";
+    private static final String TASKS_URI = "/tasks";
     private static final String LOGIN_PAGE = "jsp/login.jsp";
 
     private UserService userService;

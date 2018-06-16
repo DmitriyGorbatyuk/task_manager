@@ -15,9 +15,8 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.util.List;
 
-public class TodaysTasks  extends HttpServlet {
-
-    private static final String TODAY_PAGE = "jsp/todaysTasks.jsp";
+public class DatedTasksServlet extends HttpServlet {
+    private static final String TODAY_PAGE = "jsp/datedTasks.jsp";
     private static final String TODAY_URI = "todaysTasks";
 
     private TaskService taskService;
@@ -32,7 +31,7 @@ public class TodaysTasks  extends HttpServlet {
 
     private void putTasks(HttpServletRequest request) {
         TasksBean tasksBean = requestToTasksBeanConverter.convert(request);
-        List<Task> tasks = taskService.getTodayTasks(tasksBean);
+        List<Task> tasks = taskService.getDatedTasks(tasksBean);
         request.setAttribute(RequestParameter.DATED_TASKS, tasks);
     }
 

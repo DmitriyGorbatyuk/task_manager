@@ -2,11 +2,12 @@ package ua.khai.gorbatiuk.taskmanager.util.constant;
 
 public final class Table {
     public final class Task{
-        public static final String TABLE_NAME = "task";
+        public static final String TABLE_NAME = "tasks";
         public static final String ID =TABLE_NAME + ".id_task";
         public static final String ID_ROOT =TABLE_NAME + ".id_root";
         public static final String NAME =TABLE_NAME + ".name";
         public static final String DATE =TABLE_NAME + ".date";
+        public static final String REPEAT_AFTER =TABLE_NAME + ".repeat_after";
         public static final String TIME =TABLE_NAME + ".time";
         public static final String COMPLEXITY =TABLE_NAME + ".complexity";
         public static final String TEXT =TABLE_NAME + ".text";

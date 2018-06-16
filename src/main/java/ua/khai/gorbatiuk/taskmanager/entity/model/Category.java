@@ -4,6 +4,8 @@ public class Category extends DBEntity {
     private Integer rootId;
     private String name;
     private String color;
+    private User user;
+
 
     public Category() {
     }
@@ -38,4 +40,13 @@ public class Category extends DBEntity {
     public void setColor(String color) {
         this.color = color;
     }
+
+    public User getUser() {
+        return user;
+    }
+
+    public void setUser(User user) {
+        this.user = user;
+    }
+
 }

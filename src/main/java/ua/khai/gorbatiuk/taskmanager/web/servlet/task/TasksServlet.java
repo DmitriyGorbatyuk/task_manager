@@ -27,7 +27,7 @@ public class TasksServlet extends HttpServlet {
 
     private static final Logger logger = Logger.getLogger(TasksServlet.class);
 
-    private static final String TASKS_PAGE = "jsp/task.jsp";
+    private static final String TASKS_PAGE = "jsp/tasks.jsp";
     private static final String NEIGHBORS = "neighbors";
     private static final String CHILDREN = "children";
     private static final String ALL_CATEGORIES = "allCategories";

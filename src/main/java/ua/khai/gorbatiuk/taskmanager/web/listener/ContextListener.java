@@ -64,7 +64,9 @@ public class ContextListener implements ServletContextListener {
     private EditTaskBeanToTaskConverter editTaskBeanToTaskConverter;
     private CategoryDao categoryDao;
     private RequestToExecutingTaskBeanConverter requestToExecutingTaskBeanConverter;
-    private RequestToCategoriesBeanConverter requestToCategoriesBeanConverter;
+    private RequestToCategoryConverter requestToCategoryConverter;
+    private TaskDao taskDao;
+
     @Override
     public void contextInitialized(ServletContextEvent servletContextEvent) {
 
@@ -105,8 +107,8 @@ public class ContextListener implements ServletContextListener {
         MysqlTransactionManager transactionManager = new MysqlTransactionManager(connectionHolder);
 
         initializeUserService(transactionManager, connectionHolder);
-        initializeCategoryService(transactionManager, connectionHolder);
         initializeTaskService(transactionManager, connectionHolder);
+        initializeCategoryService(transactionManager, connectionHolder);
     }
 
     private ConnectionHolder initializeConnectionHolder(ServletContext servletContext) {
@@ -129,23 +131,23 @@ public class ContextListener implements ServletContextListener {
         return new UserDAOMysql(connectionHolder, populator, converter);
     }
 
-    private void initializeCategoryService(MysqlTransactionManager transactionManager,
-                                           ConnectionHolder connectionHolder) {
-
-        Converter<ResultSet, Category> categoryConverter = new ResultSetToCategoryConverter();
-        categoryDao = new CategoryDaoMysql(connectionHolder,categoryConverter);
-        categoryService = new CategoryServiceImpl(transactionManager, categoryDao);
-    }
-
     private void initializeTaskService(MysqlTransactionManager transactionManager,
                                        ConnectionHolder connectionHolder) {
         Populator<ResultSet, Category> categoryPopulator = new ResultSetToCategoryPopulator();
         Converter<ResultSet, Task> converter = new ResultSetToTaskConverter(categoryPopulator);
         Populator<Task, PreparedStatement> taskPreparedStatementPopulator = new TaskToPreparedStatementPopulator();
-        TaskDao taskDao = new TaskDaoMySql(connectionHolder, converter, taskPreparedStatementPopulator);
+        taskDao = new TaskDaoMySql(connectionHolder, converter, taskPreparedStatementPopulator);
         ResultSetToUserTaskTimeConverter resultSetToUserTaskTimeConverter = new ResultSetToUserTaskTimeConverter();
         UserTaskTimeDao userTaskTimeDao = new UserTaskTimeDaoMysql(connectionHolder, resultSetToUserTaskTimeConverter);
         taskService = new TaskServiceImpl(transactionManager, taskDao, userTaskTimeDao);
+    }
+
+    private void initializeCategoryService(MysqlTransactionManager transactionManager,
+                                           ConnectionHolder connectionHolder) {
+
+        Converter<ResultSet, Category> categoryConverter = new ResultSetToCategoryConverter();
+        categoryDao = new CategoryDaoMysql(connectionHolder,categoryConverter);
+        categoryService = new CategoryServiceImpl(transactionManager, categoryDao, taskDao);
     }
 
     private void initializeConvertersForServlets() {
@@ -157,7 +159,7 @@ public class ContextListener implements ServletContextListener {
         requestToEditTaskBeanConverter = new RequestToEditTaskBeanConverter();
         editTaskBeanToTaskConverter = new EditTaskBeanToTaskConverter();
         requestToExecutingTaskBeanConverter = new RequestToExecutingTaskBeanConverter();
-        requestToCategoriesBeanConverter = new RequestToCategoriesBeanConverter();
+        requestToCategoryConverter = new RequestToCategoryConverter();
     }
 
     private void putAttributesToContext(ServletContext servletContext) {
@@ -187,7 +189,7 @@ public class ContextListener implements ServletContextListener {
         servletContext.setAttribute(Attributes.REQUEST_TO_EDIT_TASK_BEAN_CONVERTER, requestToEditTaskBeanConverter);
         servletContext.setAttribute(Attributes.EDIT_TASK_BEAN_TO_TASK_CONVERTER, editTaskBeanToTaskConverter );
         servletContext.setAttribute(Attributes.REQUEST_TO_EXECUTING_TASK_BEAN_CONVERTER, requestToExecutingTaskBeanConverter);
-        servletContext.setAttribute(Attributes.REQUEST_TO_CATEGORIES_BEAN_CONVERTER, requestToCategoriesBeanConverter);
+        servletContext.setAttribute(Attributes.REQUEST_TO_CATEGORY_CONVERTER, requestToCategoryConverter);
     }
 
     @Override

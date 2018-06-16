@@ -12,6 +12,8 @@ JSTL i18n tag library.
 ===========================================================================--%>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/fmt" prefix="fmt" %>
 
+<%@ taglib tagdir="/WEB-INF/tags" prefix="t" %>
+
 <html>
 <head>
     <title>Tasks</title>
@@ -36,14 +38,20 @@ JSTL i18n tag library.
                 <a class="navbar-brand" href="/tasks">Task manager</a>
             </div>
             <ul class="nav navbar-nav">
-                <li class="active"><a href="/tasks">All task</a></li>
-                <li ><a href="/todaysTasks">Today</a></li>
-                <li><a href="/categories">Categories</a></li>
+                <li class="active"><a href="/tasks"><fmt:message key="menu.all_tasks"/></a></li>
+                <li><a href="/todaysTasks"><fmt:message key="menu.today"/></a></li>
+                <li><a href="/datedTasks"><fmt:message key="menu.schedule"/></a></li>
+                <li><a href="/categories"><fmt:message key="menu.categories"/></a></li>
             </ul>
+
             <ul class="nav navbar-nav navbar-right">
+
+                <li><a href="${requestScope['javax.servlet.forward.request_uri']}?lang=en">En</a></li>
+                <li><a href="${requestScope['javax.servlet.forward.request_uri']}?lang=ru">Ru</a></li>
+
                 <li>
                     <form method="post" action="/logout">
-                        <input class="btn navbar-btn " type="submit" value="Log out"/>
+                        <input class="btn navbar-btn " type="submit" value="<fmt:message key="menu.logout"/>"/>
                         <br>
                     </form>
                 </li>
@@ -136,12 +144,12 @@ JSTL i18n tag library.
 
                                                 <td>${child.complexity}</td>
                                                 <td>
-                                                    <div class="circle" style="background:#${child.category.color}"/>
+                                                    <div class="circle" style="background:${child.category.color}"/>
                                                 </td>
                                                 <td>${child.formattedTime}</td>
                                                 <td class="col-md-2">
                                                     <c:if test="${child.isLeaf}">
-                                                        <form action="/executeTask" method="post">
+                                                        <form action="/executeTask" method="post" style="margin:0px">
                                                             <input type="text" name="executingTaskBeanId"
                                                                    value="${child.id}" hidden>
                                                             <c:choose>
@@ -162,30 +170,29 @@ JSTL i18n tag library.
 
                                         <c:if test="${child.checked}">
                                             <tr>
-                                                <small>
-                                                    <div class="checkbox">
-                                                        <td>
-                                                            <form action="/checkTask" method="post">
-                                                                <input type="text" name="executingTaskBeanId"
-                                                                       value="${child.id}" hidden>
-                                                                <input type="checkbox" ${child.checked ? 'checked' : ''}
-                                                                       onclick="this.form.submit()">
-                                                            </form>
-                                                        </td>
-                                                    </div>
+                                                <div class="checkbox">
                                                     <td>
-                                                        <del>
-                                                            <a href="/tasks?currentTaskId=${child.id}">${child.name}</a>
-                                                        </del>
+                                                        <form action="/checkTask" method="post">
+                                                            <input type="text" name="executingTaskBeanId"
+                                                                   value="${child.id}" hidden>
+                                                            <input type="checkbox" ${child.checked ? 'checked' : ''}
+                                                                   onclick="this.form.submit()">
+                                                        </form>
                                                     </td>
+                                                </div>
+                                                <td>
+                                                    <del>
+                                                        <a href="/tasks?currentTaskId=${child.id}">${child.name}</a>
+                                                    </del>
+                                                </td>
 
-                                                    <td>${child.complexity}</td>
-                                                    <td>
-                                                        <div id="circle" style="background:#${child.category.color}"/>
-                                                    </td>
-                                                    <td>${child.formattedTime}</td>
-                                                    <td class="col-md-2">
-                                                    </td>
+                                                <td>${child.complexity}</td>
+                                                <td>
+                                                    <div class="circle" style="background:${child.category.color}"/>
+                                                </td>
+                                                <td>${child.formattedTime}</td>
+                                                <td class="col-md-2">
+                                                </td>
                                             </tr>
                                         </c:if>
 
@@ -193,7 +200,8 @@ JSTL i18n tag library.
                                 </c:when>
                                 <c:otherwise>
                                     <tr>
-                                        <td colspan="6" class="text-center">There is no subtasks. You can add new one</td>
+                                        <td colspan="6" class="text-center">There is no subtasks. You can add new one
+                                        </td>
                                     </tr>
                                 </c:otherwise>
                             </c:choose>
@@ -210,16 +218,21 @@ JSTL i18n tag library.
 
         <div class="col-md-3">
             <c:if test="${not empty currentTask}">
-                <form class="form-group" action="/editTask" method="post">
-                    <fieldset>
+
+                <fieldset>
+                    <form class="form-group" action="/editTask" method="post">
                         <legend>Edit task</legend>
                         <small class="text-muted">Task name:</small>
                         <br>
                         <input class="form-control" type="text" name="taskName" value="${currentTask.name}"/>
-                        <small class="text-muted">Expiration date:</small>
+                        <small class="text-muted">Due date:</small>
                         <br>
                         <input class="form-control" type="datetime-local" step="60" name="taskDate"
                                value="${currentTask.date}"/>
+                        <small class="text-muted">Repeat after(days):</small>
+                        <br>
+                        <input class="form-control" type="number" name="repeatAfter" min="1" max="365"
+                               value="${currentTask.repeatAfter}"/>
                         <small class="text-muted">Complexity:</small>
                         <br>
                         <input class="form-control" type="number" name="taskComplexity" min="0" max="10"
@@ -241,10 +254,12 @@ JSTL i18n tag library.
                         </select>
                         <br>
                         <input class="form-control btn btn-info" type="submit" value="Edit">
-                        <br><br>
+                    </form>
+                    <form class="form-group" action="/deleteTask" method="post">
+
                         <input class="form-control btn btn-danger" type="submit" value="Delete">
-                    </fieldset>
-                </form>
+                    </form>
+                </fieldset>
             </c:if>
         </div>
 
