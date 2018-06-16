@@ -29,11 +29,14 @@ JSTL i18n tag library.
 <body>
 	<div class="container-fluid">
 		<div class="row">
-			<div class="col-md-10">
-				<h3>Login</h3>
+			<div class="col-md-9">
+				<h3><fmt:message key="login.heading"/></h3>
 			</div>
+			<div class="col-md-1">
+				<a href="${requestScope['javax.servlet.forward.request_uri']}?lang=en">En</a>
+				<a href="${requestScope['javax.servlet.forward.request_uri']}?lang=ru">Ru</a></div>
 			<div class="col-md-2">
-				<a href="/registration">Register</a>
+				<a href="/registration"><fmt:message key="registration.title"/></a>
 			</div>
 		</div>
 		<div class="row">
@@ -42,12 +45,12 @@ JSTL i18n tag library.
 				<form class="form-horizontal" role="form" method="POST" action="/login">
 					<div>
 						<input type="text" class="form-control" id="user_email" name="user_email"
-							placeholder="Email"  value="${loginUserBean.email}">
+							placeholder="<fmt:message key="login.login"/>"  value="${loginUserBean.email}">
 						<c:if test="${not empty errors_login['error_email']}">
 							<p class="alert alert-danger fade in"> <c:out value = "${errors_login['error_email']}"/></p>
 						</c:if>
 						<input type="password" class="form-control" id="user_password" name="user_password"
-							placeholder="Password" >
+							placeholder="<fmt:message key="login.password"/>" >
 						<c:if test="${not empty errors_login['error_password']}">
 							<p class="alert alert-danger fade in"> <c:out value = "${errors_login['error_password']}"/></p>
 						</c:if>
@@ -56,7 +59,7 @@ JSTL i18n tag library.
 						</c:if>
 					</div>
 					<br>
-					<button type="submit" class="btn btn-primary">Login</button>
+					<button type="submit" class="btn btn-primary"><fmt:message key="login.title"/></button>
 				</form>
 			</div>
 			<div class="col-md-4"></div>

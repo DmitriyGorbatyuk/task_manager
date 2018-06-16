@@ -36,13 +36,28 @@ JSTL i18n tag library.
                 <a class="navbar-brand" href="/tasks">Task manager</a>
             </div>
             <ul class="nav navbar-nav">
-                <li><a href="/tasks">All task</a></li>
-                <li class="active" ><a href="/todaysTasks">Today</a></li>
-                <li><a href="/datedTasks">Schedule</a></li>
-                <li><a href="/categories">Categories</a></li>
+                <li><a href="/tasks"><fmt:message key="menu.all_tasks"/></a></li>
+                <li class="active"><a href="/todaysTasks"><fmt:message key="menu.today"/></a></li>
+                <li><a href="/datedTasks"><fmt:message key="menu.schedule"/></a></li>
+                <li><a href="/categories"><fmt:message key="menu.categories"/></a></li>
+            </ul>
+
+            <ul class="nav navbar-nav navbar-right">
+
+                <li><a href="${requestScope['javax.servlet.forward.request_uri']}?lang=en">En</a></li>
+                <li><a href="${requestScope['javax.servlet.forward.request_uri']}?lang=ru">Ru</a></li>
+
+                <li>
+                    <form method="post" action="/logout">
+                        <input class="btn navbar-btn " type="submit" value="<fmt:message key="menu.logout"/>"/>
+                        <br>
+                    </form>
+                </li>
             </ul>
         </div>
     </nav>
+
+
     <div class="row">
 
         <div class="col-md-2">
@@ -57,12 +72,12 @@ JSTL i18n tag library.
                             <thead>
                             <tr>
                                 <td></td>
-                                <td><a href="/datedTasks?sort=name"><h6>Name</h6></a></td>
-                                <td><a href="/datedTasks?sort=complexity"><h6>Complexity</h6></a></td>
-                                <td><a href="/datedTasks?sort=category"><h6>Category</h6></a></td>
-                                <td><a href="/datedTasks?sort=time"><h6>Spent time</h6></a></td>
-                                <td><a href="/datedTasks?sort=none"><h6>Without sorting</h6></a></td>
-                                <td><a href="/datedTasks?sort=date"><h6>Due date</h6></a></td>
+                                <td><a href="/todaysTasks?sort=name"><h6><fmt:message key="table.name"/></h6></a></td>
+                                <td><a href="/todaysTasks?sort=complexity"><h6><fmt:message key="table.complexity"/></h6></a></td>
+                                <td><a href="/todaysTasks?sort=category"><h6><fmt:message key="table.category"/></h6></a></td>
+                                <td><a href="/todaysTasks?sort=time"><h6><fmt:message key="table.time"/></h6></a></td>
+                                <td><a href="/todaysTasks?sort=none"><h6><fmt:message key="table.none"/></h6></a></td>
+                                <td><a href="/todaysTasks?sort=date"><h6><fmt:message key="edittask.date"/></h6></a></td>
                             </tr>
                             </thead>
                             <tbody>
@@ -98,11 +113,11 @@ JSTL i18n tag library.
                                                     <c:choose>
                                                         <c:when test="${child.id eq executingTask.id}">
                                                             <input class="form-control" type="submit"
-                                                                   value="Finish task">
+                                                                   value="<fmt:message key="table.finish_task"/>">
                                                         </c:when>
                                                         <c:otherwise>
                                                             <input class="form-control" type="submit"
-                                                                   value="Start task">
+                                                                   value="<fmt:message key="table.start_task"/>">
                                                         </c:otherwise>
                                                     </c:choose>
                                                 </form>
@@ -116,7 +131,7 @@ JSTL i18n tag library.
                         </table>
                     </c:when>
                     <c:otherwise>
-                        <h4 class="text-center">You don't have today's tasks</h4>
+                        <h4 class="text-center"><fmt:message key="today.no"/></h4>
                     </c:otherwise>
                 </c:choose>
             </div>

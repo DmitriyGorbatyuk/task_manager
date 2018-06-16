@@ -36,10 +36,10 @@ JSTL i18n tag library.
                 <a class="navbar-brand" href="/tasks">Task manager</a>
             </div>
             <ul class="nav navbar-nav">
-                <li><a href="/tasks">All Task</a></li>
-                <li><a href="/todaysTasks">Today</a></li>
-                <li><a href="/datedTasks">Schedule</a></li>
-                <li class="active"><a href="/categories">Categories</a></li>
+                <li><a href="/tasks"><fmt:message key="menu.all_tasks"/></a></li>
+                <li><a href="/todaysTasks"><fmt:message key="menu.today"/></a></li>
+                <li><a href="/datedTasks"><fmt:message key="menu.schedule"/></a></li>
+                <li class="active"><a href="/categories"><fmt:message key="menu.categories"/></a></li>
             </ul>
             <ul class="nav navbar-nav navbar-right">
                 <li>
@@ -49,6 +49,20 @@ JSTL i18n tag library.
                     </form>
                 </li>
             </ul>
+
+            <ul class="nav navbar-nav navbar-right">
+
+                <li><a href="${requestScope['javax.servlet.forward.request_uri']}?lang=en">En</a></li>
+                <li><a href="${requestScope['javax.servlet.forward.request_uri']}?lang=ru">Ru</a></li>
+
+                <li>
+                    <form method="post" action="/logout">
+                        <input class="btn navbar-btn " type="submit" value="<fmt:message key="menu.logout"/>"/>
+                        <br>
+                    </form>
+                </li>
+            </ul>
+
         </div>
     </nav>
 
@@ -59,17 +73,17 @@ JSTL i18n tag library.
         <div class="col-md-8">
             <div class="form-group">
                 <c:if test="${currentCategory.id ne 1}">
-                    <a href="/categories?currentCategoryId=${currentCategory.rootId}"> <- Go back one level</a>
+                    <a href="/categories?currentCategoryId=${currentCategory.rootId}"><fmt:message key="back_one_lvl"/></a>
                     <br><br>
                 </c:if>
 
                         <form action="/addCategory" method="post">
                             <div class="col-md-10">
-                                <input type="text" name="newCategoryName" placeholder="Name" class="form-control"
+                                <input type="text" name="newCategoryName" placeholder="<fmt:message key="add.placeholder"/>" class="form-control"
                                        maxlength="44" required/>
                             </div>
                             <div class="col-md-2">
-                                <input type="submit" value="Add" class="btn btn-default"/>
+                                <input type="submit" value="<fmt:message key="add.button"/>" class="btn btn-default"/>
                             </div>
                         </form>
 
@@ -78,9 +92,9 @@ JSTL i18n tag library.
                             <thead>
                             <tr>
                                 <td></td>
-                                <td><a href="/categories?sort=name"><h6>Name</h6></a></td>
-                                <td><a href="/categories?sort=complexity"><h6>Color</h6></a></td>
-                                <td><a href="/categories?sort=time"><h6>Spent time</h6></a></td>
+                                <td><a href="/categories?sort=name"><h6><fmt:message key="table.name"/></h6></a></td>
+                                <td><a href="/categories?sort=complexity"><h6><fmt:message key="category.color"/></h6></a></td>
+                                <td><a href="/categories?sort=time"><h6><fmt:message key="table.time"/></h6></a></td>
                                 <td></td>
                                 <td></td>
                             </tr>
@@ -97,8 +111,7 @@ JSTL i18n tag library.
                                             <form method="post" action="editCategory">
                                                 <input type="text" name="currentCategoryId" value="${entry.category.id}" hidden>
                                             <td>
-                                                <a href="/categories?currentCategoryId=${entry.category.id}">Inner
-                                                    categories</a>
+                                                <a href="/categories?currentCategoryId=${entry.category.id}"><fmt:message key="categories.inner_categories"/></a>
                                             </td>
                                             <td>
                                                 <input class="form-control" type="text" name="newCategoryName"
@@ -113,14 +126,14 @@ JSTL i18n tag library.
                                             <td>${entry.formattedTime}</td>
                                             <td>
                                                     <input class="form-control btn btn-info" type="submit"
-                                                           value="Edit"/>
+                                                           value="<fmt:message key="edittask.edit"/>"/>
                                             </td>
                                             </form>
                                             <td>
                                                 <form method="post" action="/deleteCategory">
                                                     <input type="text" name="currentCategoryId" value="${entry.category.id}" hidden>
                                                     <input class="form-control btn btn-danger" type="submit"
-                                                           value="Delete"/>
+                                                           value="<fmt:message key="edittask.delete"/>"/>
                                                 </form>
                                             </td>
 
@@ -129,8 +142,7 @@ JSTL i18n tag library.
                                 </c:when>
                                 <c:otherwise>
                                     <tr>
-                                        <td colspan="6" class="text-center">There is not subcategories. You can add new
-                                            one
+                                        <td colspan="6" class="text-center"><fmt:message key="categories.no"/>
                                         </td>
                                     </tr>
                                 </c:otherwise>
@@ -139,7 +151,7 @@ JSTL i18n tag library.
                             </c:when>
                                 <c:otherwise>
                                     <tr>
-                                        <td colspan="6" class="text-center">There is no subcategories. You can add new one</td>
+                                        <td colspan="6" class="text-center"><fmt:message key="categories.no"/></td>
                                     </tr>
                                 </c:otherwise>
                             </c:choose>

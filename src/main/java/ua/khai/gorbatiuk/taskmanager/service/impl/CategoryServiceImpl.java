@@ -14,6 +14,8 @@ import java.util.List;
 
 public class CategoryServiceImpl implements CategoryService {
 
+    private final Category ROOT_CATEGORY= new Category();
+
     private MysqlTransactionManager transactionManager;
 
     private CategoryDao categoryDao;
@@ -23,6 +25,9 @@ public class CategoryServiceImpl implements CategoryService {
         this.transactionManager = transactionManager;
         this.categoryDao = categoryDao;
         this.taskDao = taskDao;
+
+        ROOT_CATEGORY.setId(1);
+        ROOT_CATEGORY.setColor("#EEEEEE");
     }
 
     @Override
@@ -69,6 +74,9 @@ public class CategoryServiceImpl implements CategoryService {
         try {
             transactionManager.transact(() ->  {
                 Category rootCategory = categoryDao.getByCategoryId(newCategory.getRootId());
+                if(rootCategory == null) {
+                    rootCategory = ROOT_CATEGORY;
+                }
                 newCategory.setColor(rootCategory.getColor());
                 categoryDao.add(newCategory);
                 return null;
@@ -85,7 +93,12 @@ public class CategoryServiceImpl implements CategoryService {
                 List<Category> children = categoryDao.getALlByUserIdAndCategoryRootId(userId, id);
                 List<Task> tasks = taskDao.getAllByCategoryId(id);
                 if(children.isEmpty() && tasks.isEmpty()) {
-                    categoryDao.delete(id, userId);
+                    List<Category> all = categoryDao.getAllByUserId(userId);
+                    if(all.size() > 1) {
+                        categoryDao.delete(id, userId);
+                    } else {
+                        throw new WrongUserDataException("Last category cannot be deleted");
+                    }
                 } else {
                  throw new WrongUserDataException("Category cannot be deleted, it has subcategories or related tasks");
                 }

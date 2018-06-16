@@ -4,6 +4,7 @@ import ua.khai.gorbatiuk.taskmanager.util.constant.RequestParameter;
 
 import javax.servlet.*;
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.util.HashSet;
 import java.util.Set;
@@ -31,6 +32,8 @@ public class AccessFilter implements Filter{
         if(path.length == 0 || freeResources.contains(path[1]) ||
                 httpRequest.getSession().getAttribute(RequestParameter.CURRENT_USER) != null) {
             filterChain.doFilter(servletRequest,servletResponse);
+        } else {
+            httpRequest.getRequestDispatcher("jsp/login.jsp").forward(httpRequest, servletResponse);
         }
 
     }

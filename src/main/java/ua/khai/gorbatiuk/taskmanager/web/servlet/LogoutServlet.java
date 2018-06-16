@@ -14,7 +14,10 @@ public class LogoutServlet extends HttpServlet {
     protected void doPost(HttpServletRequest request, HttpServletResponse response) throws IOException {
         HttpSession session = request.getSession();
         if (session != null) {
-            session.removeAttribute("currentUser");
+            session.invalidate();
+//            session.removeAttribute("currentUser");
+//            session.removeAttribute("currentTask");
+//            session.removeAttribute("currentCategory");
         }
         response.sendRedirect(request.getHeader(REFERER));
     }

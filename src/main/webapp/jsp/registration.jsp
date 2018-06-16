@@ -28,13 +28,16 @@ JSTL i18n tag library.
 
 <div class="container-fluid">
     <div class="row">
-        <div class="col-md-10">
+        <div class="col-md-9">
             <h3>
-               Registration
+                <fmt:message key="registration.heading"/>
             </h3>
         </div>
+        <div class="col-md-1">
+            <a href="${requestScope['javax.servlet.forward.request_uri']}?lang=en">En</a>
+            <a href="${requestScope['javax.servlet.forward.request_uri']}?lang=ru">Ru</a></div>
         <div class="col-md-2">
-            <a href="/login">Log in</a>
+            <a href="/login"><fmt:message key="login.title"/></a>
         </div>
     </div>
     <div class="row">
@@ -45,17 +48,17 @@ JSTL i18n tag library.
                 <div>
 
                     <input type="text" class="form-control" id="user_email" name="user_email"
-                           placeholder="Email"  value="${userBean.email}">
+                           placeholder="<fmt:message key="registration.login"/>"  value="${userBean.email}">
                     <c:if test="${not empty errors['error_email']}">
                         <p class="alert alert-danger fade in"> <c:out value = "${errors['error_email']}"/></p>
                     </c:if>
                     <input type="password" class="form-control" id="user_password" name="user_password"
-                           placeholder="Password">
+                           placeholder="<fmt:message key="registration.password"/>">
                     <c:if test="${not empty errors['error_password']}">
                         <p class="alert alert-danger fade in"> <c:out value = "${errors['error_password']}"/></p>
                     </c:if>
                     <input type="password" class="form-control" id="user_confirm_password" name="user_confirm_password"
-                           placeholder="Confirmed password">
+                           placeholder="<fmt:message key="registration.password_confirmation"/>">
                     <c:if test="${not empty errors['error_confirm_password']}">
                         <p class="alert alert-danger fade in"> <c:out value = "${errors['error_confirm_password']}"/></p>
                     </c:if>
@@ -64,7 +67,7 @@ JSTL i18n tag library.
                     </c:if>
                 </div>
                 <br>
-                <button type="submit" class="btn btn-primary">Register</button>
+                <button type="submit" class="btn btn-primary"><fmt:message key="registration.title"/></button>
 
             </form>
             <c:if test="${not empty suc_registration}">

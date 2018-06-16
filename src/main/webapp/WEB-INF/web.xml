@@ -15,6 +15,11 @@
         <location>/jsp/error.jsp</location>
     </error-page>
 
+    <error-page>
+        <error-code>500</error-code>
+        <location>/jsp/error.jsp</location>
+    </error-page>
+
     <!--Servlet declaration -->
     <servlet>
         <servlet-name>registration</servlet-name>
@@ -175,11 +180,6 @@
 
     <!--Filter-->
     <filter>
-        <filter-name>access</filter-name>
-        <filter-class>ua.khai.gorbatiuk.taskmanager.web.filter.AccessFilter</filter-class>
-    </filter>
-
-    <filter>
         <filter-name>localeSelectFilter</filter-name>
         <filter-class>ua.khai.gorbatiuk.taskmanager.web.filter.LocaleSelectFilter</filter-class>
         <init-param>
@@ -191,14 +191,30 @@
             <param-value>en,ru</param-value>
         </init-param>
     </filter>
+    <filter-mapping>
+        <filter-name>localeSelectFilter</filter-name>
+        <url-pattern>/*</url-pattern>
+    </filter-mapping>
 
+    <filter>
+        <filter-name>access</filter-name>
+        <filter-class>ua.khai.gorbatiuk.taskmanager.web.filter.AccessFilter</filter-class>
+    </filter>
     <filter-mapping>
         <filter-name>access</filter-name>
         <url-pattern>/*</url-pattern>
     </filter-mapping>
 
+    <filter>
+        <filter-name>EncodingFilter</filter-name>
+        <filter-class>ua.khai.gorbatiuk.taskmanager.web.filter.EncodingFilter</filter-class>
+        <init-param>
+            <param-name>encoding</param-name>
+            <param-value>UTF-8</param-value>
+        </init-param>
+    </filter>
     <filter-mapping>
-        <filter-name>localeSelectFilter</filter-name>
+        <filter-name>EncodingFilter</filter-name>
         <url-pattern>/*</url-pattern>
     </filter-mapping>
 

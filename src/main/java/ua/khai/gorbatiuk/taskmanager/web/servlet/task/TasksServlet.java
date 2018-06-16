@@ -3,13 +3,13 @@ package ua.khai.gorbatiuk.taskmanager.web.servlet.task;
 import org.apache.log4j.Logger;
 import ua.khai.gorbatiuk.taskmanager.entity.bean.TasksBean;
 import ua.khai.gorbatiuk.taskmanager.entity.model.Category;
+import ua.khai.gorbatiuk.taskmanager.entity.model.Task;
 import ua.khai.gorbatiuk.taskmanager.exception.CriticalUserDataException;
 import ua.khai.gorbatiuk.taskmanager.exception.ServiceException;
 import ua.khai.gorbatiuk.taskmanager.exception.WrongUserDataException;
 import ua.khai.gorbatiuk.taskmanager.service.CategoryService;
-import ua.khai.gorbatiuk.taskmanager.util.constant.Attributes;
-import ua.khai.gorbatiuk.taskmanager.entity.model.Task;
 import ua.khai.gorbatiuk.taskmanager.service.TaskService;
+import ua.khai.gorbatiuk.taskmanager.util.constant.Attributes;
 import ua.khai.gorbatiuk.taskmanager.util.constant.RequestParameter;
 import ua.khai.gorbatiuk.taskmanager.util.converter.Converter;
 
@@ -56,7 +56,11 @@ public class TasksServlet extends HttpServlet {
         if (tasksBean.getTask().getId() != ROOT_TASK_ID) {
             tryToPutAllTasks(request, tasksBean);
         } else {
-            putNeighbors(request, tasksBean.getUser().getId(), tasksBean.getTask().getId());
+            try {
+                putNeighbors(request, tasksBean.getUser().getId(), tasksBean.getTask().getId());
+            } catch (WrongUserDataException e) {
+                logger.debug(e.getMessage());
+            }
         }
     }
 
@@ -92,7 +96,7 @@ public class TasksServlet extends HttpServlet {
     }
 
     private void putChildren(HttpServletRequest request, TasksBean tasksBean) {
-        try{
+        try {
             List<Task> children = taskService.getAllByTasksBean(tasksBean);
             request.setAttribute(CHILDREN, children);
         } catch (WrongUserDataException e) {

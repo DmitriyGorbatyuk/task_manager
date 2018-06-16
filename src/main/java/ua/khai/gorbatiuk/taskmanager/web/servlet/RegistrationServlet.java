@@ -2,6 +2,10 @@ package ua.khai.gorbatiuk.taskmanager.web.servlet;
 
 import org.apache.log4j.Logger;
 import ua.khai.gorbatiuk.taskmanager.entity.bean.RegistrationUserBean;
+import ua.khai.gorbatiuk.taskmanager.entity.model.Category;
+import ua.khai.gorbatiuk.taskmanager.entity.model.Task;
+import ua.khai.gorbatiuk.taskmanager.service.CategoryService;
+import ua.khai.gorbatiuk.taskmanager.service.TaskService;
 import ua.khai.gorbatiuk.taskmanager.util.constant.Attributes;
 import ua.khai.gorbatiuk.taskmanager.util.constant.Message;
 import ua.khai.gorbatiuk.taskmanager.util.constant.MessageKey;
@@ -35,6 +39,9 @@ public class RegistrationServlet extends HttpServlet {
     private Converter<HttpServletRequest, RegistrationUserBean> requestToUserBeanConverter;
     private Converter<RegistrationUserBean, User> registrationUserBeanToUserConverter;
     private UserService userService;
+    private TaskService taskService;
+    private CategoryService categoryService;
+    ;
 
     @Override
     public void init(ServletConfig config) throws ServletException {
@@ -43,6 +50,8 @@ public class RegistrationServlet extends HttpServlet {
         registrationUserBeanValidator = (RegistrationUserBeanValidator) context.getAttribute(
                 Attributes.REGISTRATION_USER_BEAN_VALIDATOR);
         userService = (UserService) context.getAttribute(Attributes.USER_SERVICE);
+        taskService = (TaskService) context.getAttribute(Attributes.TASK_SERVICE);
+        categoryService = (CategoryService) context.getAttribute(Attributes.CATEGORY_SERVICE);
         requestToUserBeanConverter = (Converter<HttpServletRequest, RegistrationUserBean>)
                 context.getAttribute(Attributes.REQUEST_TO_REGISTRATION_BEAN_CONVERTER);
         registrationUserBeanToUserConverter = (Converter<RegistrationUserBean, User>)
@@ -120,6 +129,7 @@ public class RegistrationServlet extends HttpServlet {
         HttpSession session = request.getSession();
         if (errors.isEmpty()) {
             setSuccessMessageInSession(bean, session);
+            addDefaultData(userService.getUserByEmailAndPassword(bean.getEmail(), bean.getPassword()));
         } else {
             setBeanAndErrorsInSession(bean, errors, session);
         }
@@ -139,5 +149,21 @@ public class RegistrationServlet extends HttpServlet {
 
         session.setAttribute(USER_BEAN_NAME, bean);
         session.setAttribute(MessageKey.ERRORS_REGISTRATION, errors);
+    }
+
+    private void addDefaultData(User user) {
+        Category defaultCategory = new Category();
+        defaultCategory.setName("Default category");
+        defaultCategory.setColor("#EEEEEE");
+        defaultCategory.setRootId(1);
+        defaultCategory.setUser(user);
+        categoryService.add(defaultCategory);
+
+        Task defaultTask = new Task();
+        defaultTask.setCategory(categoryService.getAllByUserId(user.getId()).get(0));
+        defaultTask.setName("Default task");
+        defaultTask.setRootId(1);
+        defaultTask.setUser(user);
+        taskService.add(defaultTask);
     }
 }

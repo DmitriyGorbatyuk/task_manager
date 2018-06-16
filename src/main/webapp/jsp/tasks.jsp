@@ -12,8 +12,6 @@ JSTL i18n tag library.
 ===========================================================================--%>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/fmt" prefix="fmt" %>
 
-<%@ taglib tagdir="/WEB-INF/tags" prefix="t" %>
-
 <html>
 <head>
     <title>Tasks</title>
@@ -66,7 +64,7 @@ JSTL i18n tag library.
 
                     <c:if test="${neighbors[0].rootId ne 1}">
                         <li class="nav-item">
-                            <a href="/tasks?currentTaskId=${neighbors[0].rootId}">Go back one level</a>
+                            <a href="/tasks?currentTaskId=${neighbors[0].rootId}"><fmt:message key="back_one_lvl"/></a>
                         </li>
                     </c:if>
                     <c:forEach items="${neighbors}" var="neighbor">
@@ -79,11 +77,11 @@ JSTL i18n tag library.
                     <form action="/addTasks" method="post">
                         <input type="text" name="position" value="neighbors" hidden/>
                         <div class="col-md-8">
-                            <input type="text" name="newTaskName" placeholder="Name" class="form-control" maxlength="44"
+                            <input type="text" name="newTaskName" placeholder="<fmt:message key="add.placeholder"/>" class="form-control" maxlength="44"
                                    required/>
                         </div>
                         <div class="col-md-2">
-                            <input type="submit" value="Add" class="btn btn-default"/>
+                            <input type="submit" value="<fmt:message key="add.button"/>" class="btn btn-default"/>
                         </div>
                     </form>
                     <br><br>
@@ -100,11 +98,11 @@ JSTL i18n tag library.
                         <form action="/addTasks" method="post">
                             <input type="text" name="position" value="children" hidden/>
                             <div class="col-md-10">
-                                <input type="text" name="newTaskName" placeholder="Name" class="form-control"
+                                <input type="text" name="newTaskName" placeholder="<fmt:message key="add.placeholder"/>" class="form-control"
                                        maxlength="44" required/>
                             </div>
                             <div class="col-md-2">
-                                <input type="submit" value="Add" class="btn btn-default"/>
+                                <input type="submit" value="<fmt:message key="add.button"/>" class="btn btn-default"/>
                             </div>
                         </form>
 
@@ -113,11 +111,11 @@ JSTL i18n tag library.
                             <thead>
                             <tr>
                                 <td></td>
-                                <td><a href="/tasks?sort=name"><h6>Name</h6></a></td>
-                                <td><a href="/tasks?sort=complexity"><h6>Complexity</h6></a></td>
-                                <td><a href="/tasks?sort=category"><h6>Category</h6></a></td>
-                                <td><a href="/tasks?sort=time"><h6>Spent time</h6></a></td>
-                                <td><a href="/tasks?sort=none"><h6>Without sorting</h6></a></td>
+                                <td><a href="/tasks?sort=name"><h6><fmt:message key="table.name"/></h6></a></td>
+                                <td><a href="/tasks?sort=complexity"><h6><fmt:message key="table.complexity"/></h6></a></td>
+                                <td><a href="/tasks?sort=category"><h6><fmt:message key="table.category"/></h6></a></td>
+                                <td><a href="/tasks?sort=time"><h6><fmt:message key="table.time"/></h6></a></td>
+                                <td><a href="/tasks?sort=none"><h6><fmt:message key="table.none"/></h6></a></td>
                             </tr>
                             </thead>
                             <tbody>
@@ -155,11 +153,11 @@ JSTL i18n tag library.
                                                             <c:choose>
                                                                 <c:when test="${child.id eq executingTask.id}">
                                                                     <input class="form-control" type="submit"
-                                                                           value="Finish task">
+                                                                           value="<fmt:message key="table.finish_task"/>">
                                                                 </c:when>
                                                                 <c:otherwise>
                                                                     <input class="form-control" type="submit"
-                                                                           value="Start task">
+                                                                           value="<fmt:message key="table.start_task"/>">
                                                                 </c:otherwise>
                                                             </c:choose>
                                                         </form>
@@ -181,9 +179,7 @@ JSTL i18n tag library.
                                                     </td>
                                                 </div>
                                                 <td>
-                                                    <del>
-                                                        <a href="/tasks?currentTaskId=${child.id}">${child.name}</a>
-                                                    </del>
+                                                    <del>${child.name}</del>
                                                 </td>
 
                                                 <td>${child.complexity}</td>
@@ -200,7 +196,7 @@ JSTL i18n tag library.
                                 </c:when>
                                 <c:otherwise>
                                     <tr>
-                                        <td colspan="6" class="text-center">There is no subtasks. You can add new one
+                                        <td colspan="6" class="text-center"><fmt:message key="no_subtasks"/>
                                         </td>
                                     </tr>
                                 </c:otherwise>
@@ -210,7 +206,7 @@ JSTL i18n tag library.
                         </table>
                     </c:when>
                     <c:otherwise>
-                        <h4 class="text-center">Choose any task</h4>
+                        <h4 class="text-center"><fmt:message key="choose_task"/></h4>
                     </c:otherwise>
                 </c:choose>
             </div>
@@ -221,31 +217,31 @@ JSTL i18n tag library.
 
                 <fieldset>
                     <form class="form-group" action="/editTask" method="post">
-                        <legend>Edit task</legend>
-                        <small class="text-muted">Task name:</small>
+                        <legend><fmt:message key="edittask.edit"/></legend>
+                        <small class="text-muted"><fmt:message key="edittask.name"/>:</small>
                         <br>
                         <input class="form-control" type="text" name="taskName" value="${currentTask.name}"/>
-                        <small class="text-muted">Due date:</small>
+                        <small class="text-muted"><fmt:message key="edittask.date"/>:</small>
                         <br>
                         <input class="form-control" type="datetime-local" step="60" name="taskDate"
                                value="${currentTask.date}"/>
-                        <small class="text-muted">Repeat after(days):</small>
+                        <small class="text-muted"><fmt:message key="edittask.repeat"/>:</small>
                         <br>
                         <input class="form-control" type="number" name="repeatAfter" min="1" max="365"
                                value="${currentTask.repeatAfter}"/>
-                        <small class="text-muted">Complexity:</small>
+                        <small class="text-muted"><fmt:message key="edittask.complexity"/>:</small>
                         <br>
                         <input class="form-control" type="number" name="taskComplexity" min="0" max="10"
                                value="${currentTask.complexity}"/>
-                        <small class="text-muted">Description:</small>
+                        <small class="text-muted"><fmt:message key="edittask.description"/>:</small>
                         <br>
                         <textarea class="form-control" rows="5"
                                   name="taskDescription">${currentTask.description}</textarea>
-                        <small class="text-muted">Spent time(seconds):</small>
+                        <small class="text-muted"><fmt:message key="edittask.time"/>:</small>
                         <br>
                         <input class="form-control" type="number" name="taskTime" min="0"
                                value="${currentTask.time}" ${currentTask.isLeaf ? '' : 'disabled'}>
-                        <small class="text-muted">Category:</small>
+                        <small class="text-muted"><fmt:message key="edittask.category"/>:</small>
                         <select class="form-control" name="taskCategoryId">
                             <c:forEach items="${allCategories}" var="category">
                                 <option value="${category.id}" ${category.id == currentTask.category.id ? 'selected' : ''}>${category.name}</option>
@@ -253,11 +249,11 @@ JSTL i18n tag library.
 
                         </select>
                         <br>
-                        <input class="form-control btn btn-info" type="submit" value="Edit">
+                        <input class="form-control btn btn-info" type="submit" value="<fmt:message key="edittask.edit"/>">
                     </form>
                     <form class="form-group" action="/deleteTask" method="post">
 
-                        <input class="form-control btn btn-danger" type="submit" value="Delete">
+                        <input class="form-control btn btn-danger" type="submit" value="<fmt:message key="edittask.delete"/>">
                     </form>
                 </fieldset>
             </c:if>
@@ -265,8 +261,5 @@ JSTL i18n tag library.
 
     </div>
 </div>
-<script>
-    <%@include file="/static/js/stopwatch.js" %>
-</script>
 </body>
 </html>

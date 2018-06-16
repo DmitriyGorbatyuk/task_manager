@@ -5,6 +5,7 @@ import ua.khai.gorbatiuk.taskmanager.dao.UserTaskTimeDao;
 import ua.khai.gorbatiuk.taskmanager.dao.connection.MysqlTransactionManager;
 import ua.khai.gorbatiuk.taskmanager.entity.bean.TasksBean;
 import ua.khai.gorbatiuk.taskmanager.entity.bean.UserTaskTime;
+import ua.khai.gorbatiuk.taskmanager.entity.model.Category;
 import ua.khai.gorbatiuk.taskmanager.entity.model.Task;
 import ua.khai.gorbatiuk.taskmanager.exception.DaoException;
 import ua.khai.gorbatiuk.taskmanager.exception.ServiceException;
@@ -20,6 +21,8 @@ import java.util.stream.Collectors;
 
 public class TaskServiceImpl implements TaskService {
 
+    private final Task ROOT_TASK = new Task();
+    private final Category ROOT_CATEGORY= new Category();
     private final Map<String, Function<Task, Comparable>> sortedField = new HashMap<>();
 
     private MysqlTransactionManager transactionManager;
@@ -36,6 +39,11 @@ public class TaskServiceImpl implements TaskService {
         sortedField.put("category", task -> task.getCategory().getName());
         sortedField.put("time", Task::getTime);
         sortedField.put("date", Task::getDate);
+
+        ROOT_CATEGORY.setId(1);
+        ROOT_CATEGORY.setColor("#EEEEEE");
+        ROOT_TASK.setId(1);
+        ROOT_TASK.setCategory(ROOT_CATEGORY);
     }
 
     @Override
@@ -139,6 +147,9 @@ public class TaskServiceImpl implements TaskService {
         try {
             transactionManager.transact(() -> {
                 Task rootTask = taskDao.getByUserIdAndTaskId(newTask.getUser().getId(), newTask.getRootId());
+                if(rootTask == null) {
+                    rootTask = ROOT_TASK;
+                }
                 newTask.setCategory(rootTask.getCategory());
                 taskDao.add(newTask);
                 return 0;
@@ -284,15 +295,21 @@ public class TaskServiceImpl implements TaskService {
                     Task deletedTask = taskDao.getByUserIdAndTaskId(userId, taskId);
                     Task parent = taskDao.getByUserIdAndTaskId(userId, deletedTask.getRootId());
 
-                    Integer updatedLines = taskDao.delete(taskId, userId);
+                    List<Task> all = taskDao.getAllByUserId(userId);
+                    if(all.size() > 1) {
+                        Integer updatedLines = taskDao.delete(taskId, userId);
 
-                    parent.setTime(parent.getTime() + deletedTask.getTime());
-                    taskDao.update(parent);
-
-                    if (updatedLines != null && updatedLines == 1) {
-                        return updatedLines;
+                        if(parent!=null) {
+                            parent.setTime(parent.getTime() + deletedTask.getTime());
+                            taskDao.update(parent);
+                        }
+                        if (updatedLines != null && updatedLines == 1) {
+                            return updatedLines;
+                        }
+                        throw new ServiceException("There is more updated task lines than 1(" + updatedLines + ")");
+                    } else {
+                        throw new WrongUserDataException("Last category cannot be deleted");
                     }
-                    throw new ServiceException("There is more updated task lines than 1(" + updatedLines + ")");
                 } else {
                     throw new WrongUserDataException("Task cannot be deleted, it has subtasks");
                 }

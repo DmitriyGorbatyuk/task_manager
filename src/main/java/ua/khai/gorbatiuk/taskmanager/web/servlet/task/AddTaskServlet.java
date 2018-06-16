@@ -51,6 +51,14 @@ public class AddTaskServlet extends HttpServlet {
     }
 
     private Task fillNewTask(TasksBean tasksBean, AddTaskBean addTaskBean) {
+        initMap(tasksBean);
+        Task newTask = map.get(addTaskBean.getPosition()).get();
+        newTask.setName(addTaskBean.getNewTaskName());
+        newTask.setUser(tasksBean.getUser());
+        return newTask;
+    }
+
+    private void initMap(TasksBean tasksBean) {
         map.put(RequestParameter.TASK_ADD_POSITION_NEIGHBORS,() -> {
             Task newTask = new Task();
             newTask.setRootId(tasksBean.getTask().getId());
@@ -62,10 +70,6 @@ public class AddTaskServlet extends HttpServlet {
             newTask.setRootId(currentTask.getId());
             return newTask;
         });
-        Task newTask = map.get(addTaskBean.getPosition()).get();
-        newTask.setName(addTaskBean.getNewTaskName());
-        newTask.setUser(tasksBean.getUser());
-        return newTask;
     }
 
     @Override

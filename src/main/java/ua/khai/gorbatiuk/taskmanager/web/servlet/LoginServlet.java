@@ -47,12 +47,6 @@ public class LoginServlet extends HttpServlet {
 
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-        //TODO remove this test code-------------------------------------------
-        User user = new User();
-        user.setId(2);
-        request.getSession().setAttribute(RequestParameter.CURRENT_USER,user);
-        //TODO--------------------------------------------------------------------
-
         replaceAttributesFromSession(request);
         if(request.getSession().getAttribute(RequestParameter.CURRENT_USER) == null) {
             request.getRequestDispatcher(LOGIN_PAGE).forward(request, response);
